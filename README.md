@@ -2,5 +2,5 @@
 
 
 
-Este es un repo en honor a el Barcangel Gabriel Di'Santo
+Este es un repo en honor a Ricardios Barcángel Gabriel Di'Santo
 
