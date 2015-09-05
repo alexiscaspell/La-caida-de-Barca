@@ -5,6 +5,8 @@
 int main(void) {
 
 	tipoConfigSWAP* configuracion = cargarArchivoDeConfiguracionDeSWAP("/home/utnso/Escritorio/cfgSWAP");
+	
+	//LPM negro me cago en tus pruebas forronan
 
 
 
