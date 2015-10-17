@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/Client.c 
+../src/SWAPHard.c 
 
 OBJS += \
-./src/Client.o 
+./src/SWAPHard.o 
 
 C_DEPS += \
-./src/Client.d 
+./src/SWAPHard.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

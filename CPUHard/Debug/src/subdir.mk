@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/Client.c 
+../src/CPUHard.c 
 
 OBJS += \
-./src/Client.o 
+./src/CPUHard.o 
 
 C_DEPS += \
-./src/Client.d 
+./src/CPUHard.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

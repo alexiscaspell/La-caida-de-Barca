@@ -32,11 +32,11 @@ int main(void) {
 
 	conectarAServidor(socketCliente,ip,puerto);
 
-	probarPCB(socketCliente);
+	//probarPCB(socketCliente);
 
 	//probarInstruccion(socketCliente);
 
-	//probarRespuesta(socketCliente);
+	probarRespuesta(socketCliente);
 
 	liberarSocket(socketCliente);
 
@@ -148,17 +148,21 @@ void probarRespuesta(int socketCliente){
 
 	void* mensaje = serializarRespuesta(respuesta);
 
-	tipoRespuesta otraRespuesta;
+	tipoRespuesta* otraRespuesta;
 
 	void* buffer = mensaje+sizeof(size_t);
 
-	deserializarRespuesta(buffer,&otraRespuesta);
+	deserializarRespuesta(buffer,otraRespuesta);
 
 	printf("\n\nDESPUES: \n");
 
-	imprimirRespuesta(otraRespuesta);
+	imprimirRespuesta(*otraRespuesta);
+
+	printf("ya imprimi respuesta");
 
 	free(mensaje);
+
+	printf("hice el free de respuesta\n");
 }
 
 void imprimirRespuesta(tipoRespuesta respuesta){

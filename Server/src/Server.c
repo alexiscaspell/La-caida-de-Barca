@@ -14,6 +14,7 @@
 #include <commons/string.h>
 #include <commonsDeAsedio/estructuras.h>
 #include <commonsDeAsedio/select.h>
+#include <commons/collections/list.h>
 
 
 void imprimirPCB(tipoPCB);
@@ -33,18 +34,18 @@ int main(void) {
 
 	escucharConexiones(socketServidor,10);
 
-	//int socketCliente = crearSocketParaAceptarSolicitudes(socketServidor);
+	int socketCliente = crearSocketParaAceptarSolicitudes(socketServidor);
 
 	//probarPCB(socketCliente);
 
 	//probarInstruccion(socketCliente);
 
-	//probarRespuesta(socketCliente);
+	probarRespuesta(socketCliente);
 
-	probarSelect(socketServidor);
+	//probarSelect(socketServidor);
 
 
-	//liberarSocket(socketCliente);
+	liberarSocket(socketCliente);
 
 	liberarSocket(socketServidor);
 
