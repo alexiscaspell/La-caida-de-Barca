@@ -319,11 +319,10 @@ int dondeEstaEnTLB(int nroPagina, int pid) {
 	return posicionDePagina;
 }
 
-int traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
+void traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
 
 	//ejecutar algoritmos locos
 
-	return PERFECTO;
 }
 
 void quitarPaginasDeTLB(int pid) {
@@ -543,13 +542,11 @@ void agregarPagina(int nroPagina,int pid,char* pagina){
 
 }
 
-void agregarPaginaARam(char* pagina){
+int agregarPaginaARam(char* pagina){
 
+	return PERFECTO;
 
 }
-
-
-
 
 ////////////////////
 //FINALIZAR PROCESO

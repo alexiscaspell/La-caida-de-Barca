@@ -105,21 +105,23 @@ bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta);
 
 void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar);
 
-void liberarEstructuraRAM(int posicionEnRam);
+char* traerPaginaDesdeRam(int direccion);
 
-void quitarPaginasDeRAM(int pid);
+int buscarTabla(int pid);
 
-int cantidadDePaginasAsignadas(int pid);
-
-void quitarPaginasDeTLB(int pid);
-
-int traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta);
-
-int dondeEstaEnRam(int nroPagina, int pid);
+int dondeEstaEnTabla(int nroPagina, int pid);
 
 int dondeEstaEnTLB(int nroPagina, int pid);
 
-char* traerPaginaDesdeRam(int direccion);
+void traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta);
+
+void quitarPaginasDeTLB(int pid);
+
+int cantidadDePaginasAsignadas(int pid);
+
+void quitarTabla(int pid);
+
+void liberarPaginaDeRAM(int posicionEnRam);
 
 //////////////////
 //ESCRIBIR PAGINA
@@ -128,6 +130,10 @@ char* traerPaginaDesdeRam(int direccion);
 bool estaHabilitadaLaTLB();
 
 void escribirPagina(tipoInstruccion instruccion,int cpuATratar);
+
+void agregarPagina(int nroPagina,int pid,char* pagina);//Agrega pagina a la tabla de pagina
+
+int agregarPaginaARam(char* pagina);//Agrega la pagina a listaRAM y retorna la posicion dentro del t_list
 
 /////////////////////
 //FINALIZAR PROCESO
@@ -138,7 +144,5 @@ bool instruccionASwapRealizada(tipoInstruccion instruccion,tipoRespuesta* respue
 void quitarProceso(tipoInstruccion instruccion, int cpuaATratar);
 
 void destruirProceso(int pid);
-
-void quitarAdministracionDePaginas(int pid);
 
 #endif /* FUNCIONESMEMORIA_H_ */
