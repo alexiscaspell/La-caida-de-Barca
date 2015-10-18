@@ -59,19 +59,22 @@ int main(void) {
 
 	int socketMemoria = crearSocketParaAceptarSolicitudes(socketSwap);
 
+	tipoRespuesta respuesta;
+
+	respuesta.respuesta = PERFECTO;
+
+	respuesta.informacion = "negro";
+
+	while(true){
+
 	tipoInstruccion* instruccionRecibida = recibirInstruccion(socketMemoria);
 
 	if(instruccionRecibida->instruccion==INICIAR){
 
 		printf("Recibi una instruccion del proceso %d de reserva de %d pagina/s\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
 
-		tipoRespuesta respuesta;
-
-		respuesta.respuesta = PERFECTO;
-
-		respuesta.informacion = "";
-
 		enviarRespuesta(socketMemoria,respuesta);
+	}
 	}
 
 	liberarSocket(socketMemoria);

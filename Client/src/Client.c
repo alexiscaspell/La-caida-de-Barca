@@ -146,7 +146,7 @@ void probarRespuesta(int socketCliente){
 
 	enviarRespuesta(socketCliente,respuesta);
 
-	void* mensaje = serializarRespuesta(respuesta);
+	/*void* mensaje = serializarRespuesta(respuesta);
 
 	tipoRespuesta* otraRespuesta;
 
@@ -162,7 +162,7 @@ void probarRespuesta(int socketCliente){
 
 	free(mensaje);
 
-	printf("hice el free de respuesta\n");
+	printf("hice el free de respuesta\n");*/
 }
 
 void imprimirRespuesta(tipoRespuesta respuesta){

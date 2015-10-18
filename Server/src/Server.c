@@ -89,7 +89,9 @@ void imprimirInstruccion(tipoInstruccion instruccion){
 
 void probarRespuesta(int socketCliente){
 
-	tipoRespuesta* respuestaRecibida = recibirRespuesta(socketCliente);
+	tipoRespuesta* respuestaRecibida;
+
+	respuestaRecibida = recibirRespuesta(socketCliente);
 
 	imprimirRespuesta(*respuestaRecibida);
 

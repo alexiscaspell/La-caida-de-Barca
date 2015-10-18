@@ -48,6 +48,8 @@ tipoConfigCPU* crearConfigCPU();
 
 void destruirConfigCPU(tipoConfigCPU* estructuraDeConfiguracion);
 
+void getRespuesta(int socket,tipoRespuesta* respuesta){	respuesta = recibirRespuesta(socket);}
+
 
 int main(void) {
 
@@ -71,9 +73,15 @@ int main(void) {
 
 	enviarInstruccion(socketCpu,instruccionAEnviar);
 
-	tipoRespuesta* respuesta = recibirRespuesta(socketCpu);
+	tipoRespuesta respuesta;
 
-	if(respuesta->respuesta==PERFECTO)
+	getRespuesta(socketCpu,&respuesta);
+
+	printf("el estado de respuesta es %c\n",respuesta.respuesta);
+
+	printf("La info de respuesta es: %s\n",respuesta.informacion);
+
+	if(respuesta.respuesta==PERFECTO)
 	printf("Ya se pudo iniciar el proceso...\n");
 
 	else
