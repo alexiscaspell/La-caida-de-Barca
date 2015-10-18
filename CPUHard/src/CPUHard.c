@@ -69,8 +69,6 @@ int main(void) {
 
 	instruccionAEnviar.pid = 19;
 
-	sleep(2);
-
 	enviarInstruccion(socketCpu,instruccionAEnviar);
 
 	tipoRespuesta respuesta;

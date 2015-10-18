@@ -74,7 +74,7 @@ int main(void) {
 		printf("Recibi una instruccion del proceso %d de reserva de %d pagina/s\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
 
 		enviarRespuesta(socketMemoria,respuesta);
-	}
+		}
 	}
 
 	liberarSocket(socketMemoria);

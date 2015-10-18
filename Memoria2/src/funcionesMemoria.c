@@ -106,9 +106,9 @@ void tratarPeticiones() {
 /////////////////
 void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
 
-	tipoRespuesta respuesta;// = malloc(sizeof(tipoRespuesta));
+	tipoRespuesta* respuesta;// = malloc(sizeof(tipoRespuesta));
 
-	if (puedoReservarEnSWAP(instruccion, &respuesta)) {
+	if (puedoReservarEnSWAP(instruccion, respuesta)) {
 
 		printf("pude reservar en swap!!\n");
 
@@ -128,10 +128,10 @@ void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
 
 		list_add(datosMemoria->listaTablaPaginas, tablaDePaginasNueva);
 
-		printf("agregue pagina a admin de paginas\n");
+		printf("agregue pagina a tabla de paginas\n");
 	}
 
-	enviarRespuesta(cpuATratar, respuesta);
+	enviarRespuesta(cpuATratar, *respuesta);
 }
 
 bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
@@ -357,7 +357,7 @@ int cantidadDePaginasAsignadas(int pid){
 		break;
 		}
 	}*/
-	for (var = 0; var < datosMemoria->listaTablaPaginas; ++var) {
+	for (var = 0; var < list_size(datosMemoria->listaTablaPaginas); ++var) {
 
 		tablaActual = list_get(datosMemoria->listaTablaPaginas,var);
 
