@@ -26,23 +26,23 @@ endif
 all: Client
 
 dependents:
-	-cd /home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug && $(MAKE) all
+	-cd /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug && $(MAKE) all
 
 # Tool invocations
-Client: $(OBJS) $(USER_OBJS) /home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so
+Client: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug" -o "Client" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug" -o "Client" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Client
+	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) Client
 	-@echo ' '
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so:
+/home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so:
 
 -include ../makefile.targets

@@ -52,7 +52,20 @@ typedef struct{
 	fd_set* cpusATratar;
 	bool* memoriaActiva;
 	int socketCpus;
+	t_list* listaAccesosAPaginasRAM;//Pongo
+	t_list* listaAccesosAPaginasTLB;//esto para
+	char tipoDeAlgoritmoRAM;//que funcione
+	char tipoDeAlgoritmoTLB;//fifo y lru
 }tipoEstructuraMemoria;
+
+typedef struct{
+	int cantVecesAccedido;
+	int pid;
+	int nroPagina;
+}tipoAccesosAPagina;
+
+#define FIFO 1
+#define LRU 2
 
 typedef struct{
 	int pid;
@@ -131,10 +144,6 @@ bool estaHabilitadaLaTLB();
 
 void escribirPagina(tipoInstruccion instruccion,int cpuATratar);
 
-void agregarPagina(int nroPagina,int pid,char* pagina);//Agrega pagina a la tabla de pagina
-
-int agregarPaginaARam(char* pagina);//Agrega la pagina a listaRAM y retorna la posicion dentro del t_list
-
 /////////////////////
 //FINALIZAR PROCESO
 /////////////////////
@@ -144,5 +153,33 @@ bool instruccionASwapRealizada(tipoInstruccion instruccion,tipoRespuesta* respue
 void quitarProceso(tipoInstruccion instruccion, int cpuaATratar);
 
 void destruirProceso(int pid);
+
+
+//**************************************************************************************************************
+//**********************************FUNCIONES DE REEMPLAZO******************************************************
+//**************************************************************************************************************
+
+void agregarPaginaATLB(int nroPagina,int pid,int posicionEnRam);
+
+void agregarPaginaATabla(int nroPagina,int pid,int posicionEnRam);//Agrega pagina a la tabla de pagina
+
+bool agregarPagina(int nroPagina,int pid,char* pagina);//agrega a ram y a tabla de paginas
+
+//int agregarPaginaARam(char* pagina);//Agrega la pagina a listaRAM y retorna la posicion dentro del t_list
+
+int cualReemplazarRAM();
+
+bool RAMLlena();
+
+bool TLBLlena();
+
+int cualReemplazarRAMFIFO();
+
+int cualReemplazarRAMLRU();
+
+int cualReemplazarTLBFIFO();
+
+int cualReemplazarTLB();
+
 
 #endif /* FUNCIONESMEMORIA_H_ */

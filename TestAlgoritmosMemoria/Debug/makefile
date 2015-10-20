@@ -27,14 +27,14 @@ all: TestAlgoritmosMemoria
 
 dependents:
 	-cd /home/utnso/git/tp-2015-2c-los-javimancos/Memoria/Debug && $(MAKE) all
-	-cd /home/utnso/git/tp-2015-2c-los-javimancos/commons/Debug && $(MAKE) all
+	-cd /home/utnso/workspace/commons/Debug && $(MAKE) all
 	-cd /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug && $(MAKE) all
 
 # Tool invocations
-TestAlgoritmosMemoria: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-2015-2c-los-javimancos/Memoria/Debug/Memoria /home/utnso/git/tp-2015-2c-los-javimancos/commons/Debug/libcommons.so /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so
+TestAlgoritmosMemoria: $(OBJS) $(USER_OBJS) /home/utnso/git/tp-2015-2c-los-javimancos/Memoria/Debug/Memoria /home/utnso/workspace/commons/Debug/libcommons.so /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug" -L"/home/utnso/git/tp-2015-2c-los-javimancos/commons/Debug" -o "TestAlgoritmosMemoria" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug" -L"/home/utnso/workspace/commons/Debug" -o "TestAlgoritmosMemoria" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -46,7 +46,7 @@ clean:
 .PHONY: all clean dependents
 .SECONDARY:
 /home/utnso/git/tp-2015-2c-los-javimancos/Memoria/Debug/Memoria:
-/home/utnso/git/tp-2015-2c-los-javimancos/commons/Debug/libcommons.so:
+/home/utnso/workspace/commons/Debug/libcommons.so:
 /home/utnso/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so:
 
 -include ../makefile.targets

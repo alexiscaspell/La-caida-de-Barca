@@ -62,7 +62,12 @@ void setearEstructuraMemoria(tipoEstructuraMemoria* datos) {
 
 	datosMemoria->listaRAM = list_create();
 
+	datosMemoria->listaAccesosAPaginasRAM = list_create();
+
+	if(estaHabilitadaLaTLB()){
 	datosMemoria->listaTLB = list_create();
+	datosMemoria->listaAccesosAPaginasTLB = list_create();
+	}
 }
 
 /************************FUNCIONES********************************/
@@ -180,9 +185,8 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 		respuesta->informacion = traerPaginaDesdeRam(posicionDePag);
 
-		if(!estaEnTLB){
-		//agregar a la tlb :'(
-		}
+		if(!estaEnTLB&&estaHabilitadaLaTLB())
+			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
 
 				}
 		else{
@@ -285,7 +289,7 @@ int dondeEstaEnTabla(int nroPagina, int pid) {
 
 			if(paginaActual->numeroDePagina==nroPagina){
 
-				posicionDePagina = i;
+				posicionDePagina = paginaActual->posicionEnRAM;
 
 				break;
 			}
@@ -293,6 +297,8 @@ int dondeEstaEnTabla(int nroPagina, int pid) {
 		}
 
 		}
+	if(posicionDePagina>=0)
+		aumentarAccesoAPaginaRAM(nroPagina,pid);
 
 	return posicionDePagina;
 
@@ -316,6 +322,9 @@ int dondeEstaEnTLB(int nroPagina, int pid) {
 		}
 	}
 
+	if(posicionDePagina>=0)
+		aumentarAccesoAPaginaTLB(nroPagina,pid);
+
 	return posicionDePagina;
 }
 
@@ -324,6 +333,37 @@ void traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta)
 	//ejecutar algoritmos locos
 
 }
+
+void aumentarAcceso(int nroPagina,int pid,t_list* listaAccesos){
+
+	tipoAccesosAPagina* accesoActual;
+
+	int var;
+	for (var = 0; var < list_size(listaAccesos); ++var) {
+
+		accesoActual = list_get(listaAccesos,var);
+
+		if(accesoActual->pid==pid&&accesoActual->nroPagina==nroPagina){
+
+			accesoActual->cantVecesAccedido++;
+
+			break;
+		}
+	}
+}
+
+void aumentarAccesoAPaginaTLB(int nroPagina,int pid){
+
+	if(datosMemoria->tipoDeAlgoritmoTLB==LRU)
+		aumentarAcceso(nroPagina,pid,datosMemoria->listaAccesosAPaginasTLB);
+}
+
+void aumentarAccesoAPaginaRAM(int nroPagina,int pid){
+
+	if(datosMemoria->tipoDeAlgoritmoRAM==LRU)
+		aumentarAcceso(nroPagina,pid,datosMemoria->listaAccesosAPaginasRAM);
+}
+
 
 void quitarPaginasDeTLB(int pid) {
 
@@ -460,33 +500,23 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 		memcpy(paginaAModificar,instruccion.texto,datosMemoria->configuracion->tamanioDeMarco);
 
-		agregarPagina(instruccion.nroPagina,instruccion.pid,paginaAModificar);
+		list_replace(datosMemoria->listaRAM,posicionDePag,paginaAModificar);
+
+		modificarBitDeModificacion(instruccion.nroPagina,instruccion.pid);
+
+		if(!estaEnTLB&&estaHabilitadaLaTLB())
+			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
 
 				}
-		else{
-				tipoPagina* nuevaPagina = malloc(sizeof(tipoPagina));
-
-				nuevaPagina->modificado = false;
-
-				nuevaPagina->numeroDePagina = instruccion.nroPagina;
-
-				nuevaPagina->posicionEnRAM = agregarPaginaARam(instruccion.texto);
-
-				list_add(tablaDeProceso->frames,nuevaPagina);
-			}
-
-		if(!estaEnTLB){
-
-		//agregar a la tlb :'(
-			}
-
+		else
+			agregarPagina(instruccion.nroPagina,instruccion.pid,instruccion.texto);
 		}
 
 	else{
 
 		tipoInstruccion instruccionDeBorrado;
 
-		instruccionDeBorrado.instruccion = FINALIZAR;
+		instruccionDeBorrado.instruccion = FINALIZAR;//Charlar conForronan porque es un error
 
 		instruccionDeBorrado.pid = instruccion.pid;
 
@@ -535,18 +565,29 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 	enviarRespuesta(cpuATratar, *respuesta);
 	}
 
-void agregarPagina(int nroPagina,int pid,char* pagina){
+void modificarBitDeModificacion(int nroPagina,int pid){
 
+	int dondeEstaTabla = buscarTabla(pid),var;
 
-//acordate de modificar bool a true
+	tipoTablaPaginas* instanciaTabla = list_get(datosMemoria->listaTablaPaginas,dondeEstaTabla);
+
+	tipoPagina* paginaActual;
+
+	for (var = 0; var < list_size(instanciaTabla->frames); ++var) {
+
+		paginaActual = list_get(instanciaTabla->frames,var);
+
+		if(paginaActual->numeroDePagina==nroPagina){
+
+			paginaActual->modificado = !paginaActual->modificado;
+
+			break;
+		}
+
+	}
 
 }
 
-int agregarPaginaARam(char* pagina){
-
-	return PERFECTO;
-
-}
 
 ////////////////////
 //FINALIZAR PROCESO
@@ -610,3 +651,256 @@ void destruirProceso(int pid) {
 		}
 	}
 }*/
+
+//**************************************************************************************************************
+//**********************************FUNCIONES DE REEMPLAZO******************************************************
+//**************************************************************************************************************
+
+void agregarPaginaATLB(int nroPagina,int pid,int posicionEnRam){
+
+	if(!TLBLlena()){
+
+		tipoTLB* instanciaTLB = malloc(sizeof(tipoTLB));
+
+		instanciaTLB->numeroDePagina = nroPagina;
+
+		instanciaTLB->pid = pid;
+
+		instanciaTLB->posicionEnRAM = posicionEnRam;
+
+		list_add(datosMemoria->listaTLB,instanciaTLB);
+	}
+
+	else{
+
+		int posicionAReemplazar = cualReemplazarTLB();
+
+		list_remove(datosMemoria->listaAccesosAPaginasTLB,posicionAReemplazar);
+
+		tipoTLB* instanciaTLB = malloc(sizeof(tipoTLB));
+
+		instanciaTLB->numeroDePagina = nroPagina;
+
+		instanciaTLB->pid = pid;
+
+		instanciaTLB->posicionEnRAM = posicionEnRam;
+
+	}
+
+}
+
+void agregarPaginaATabla(int nroPagina,int pid,int posicionEnRam){
+
+	int dondeEstaTabla = buscarTabla(pid);
+
+	tipoPagina* instanciaPagina = malloc(sizeof(tipoPagina));
+
+	instanciaPagina->modificado = false;
+
+	instanciaPagina->numeroDePagina =  nroPagina;
+
+	instanciaPagina->posicionEnRAM = posicionEnRam;
+}
+
+bool agregarPagina(int nroPagina,int pid,char* pagina){
+
+	bool operacionExitosa = true;
+
+	int posicionEnRam;
+
+	if(RAMLlena()){
+
+			int posicionAReemplazar = cualReemplazarRAM();
+
+			tipoAccesosAPagina* instanciaAccesoAReemplzar = list_get(datosMemoria->listaAccesosAPaginasRAM,posicionAReemplazar);
+
+			tipoInstruccion* instruccion = malloc(sizeof(tipoInstruccion));
+
+			instruccion->nroPagina = instanciaAccesoAReemplzar->nroPagina;
+
+			instruccion->pid = instanciaAccesoAReemplzar->pid;
+
+			instruccion->instruccion = ESCRIBIR;//Esto hay que charlarlo con Forronan
+
+			instruccion->texto = malloc(datosMemoria->configuracion->tamanioDeMarco);
+
+			tipoRespuesta* respuestaSwap;
+
+			operacionExitosa = instruccionASwapRealizada(*instruccion,respuestaSwap);
+
+			if(operacionExitosa){
+
+				posicionEnRam = dondeEstaEnTLB(instanciaAccesoAReemplzar->nroPagina,instanciaAccesoAReemplzar->pid);
+
+				if(posicionEnRam>=0)
+					quitarPaginaDeTLB(instanciaAccesoAReemplzar->nroPagina,instanciaAccesoAReemplzar->pid);
+
+				else{
+					posicionEnRam = dondeEstaEnTabla(instanciaAccesoAReemplzar->nroPagina,instanciaAccesoAReemplzar->pid);
+
+					quitarPaginaDeTabla(instanciaAccesoAReemplzar->nroPagina,instanciaAccesoAReemplzar->pid);
+				}
+
+				list_remove(datosMemoria->listaRAM,posicionEnRam);
+			}
+	}
+	else
+		posicionEnRam = list_size(datosMemoria->listaRAM);
+
+
+	if(operacionExitosa){
+
+				list_add(datosMemoria->listaRAM,pagina);
+
+				agregarPaginaATabla(nroPagina,pid,posicionEnRam);
+
+				if(estaHabilitadaLaTLB())
+				agregarPaginaATLB(nroPagina,pid,posicionEnRam);
+			}
+
+	return operacionExitosa;
+}
+
+void quitarPaginaDeTLB(int nroPagina,int pid){
+
+	int var;
+
+	tipoTLB* instanciaTLB;
+
+	for (var = 0; var < list_size(datosMemoria->listaTLB); ++var) {
+
+		instanciaTLB= list_get(datosMemoria->listaTLB,var);
+
+		if(instanciaTLB->numeroDePagina==nroPagina&&instanciaTLB->pid==pid){
+
+			list_remove(datosMemoria->listaTLB,var);
+
+			break;
+		}
+	}
+
+}
+
+void quitarPaginaDeTabla(int nroPagina,int pid){
+
+	int var;
+
+	tipoTablaPaginas* instanciaTabla = buscarTabla(pid);
+
+	tipoPagina* instanciaPagina;
+
+	for (var = 0; var < list_size(instanciaTabla->frames); ++var) {
+
+		instanciaPagina = list_get(instanciaTabla->frames,var);
+
+		if(instanciaPagina->numeroDePagina==nroPagina){
+
+			list_remove(instanciaTabla->frames,var);
+
+			break;
+		}
+	}
+
+}
+
+
+int cualReemplazarRAM(){
+
+	int cualReemplazar;
+
+	switch (datosMemoria->tipoDeAlgoritmoRAM) {
+
+	case FIFO:
+		cualReemplazar = cualReemplazarRAMFIFO();
+			break;
+
+	case LRU:
+		cualReemplazar = cualReemplazarRAMLRU();
+			break;
+	}
+
+	return cualReemplazar;
+}
+
+bool RAMLlena(){
+
+	return (list_size(datosMemoria->listaRAM)==datosMemoria->configuracion->cantidadDeMarcos);
+}
+
+bool TLBLlena(){
+
+	return false;//Aca deberia tener un campo en archivo de configuracion
+}
+
+int cualReemplazarRAMFIFO(){
+
+	return cualReemplazarPorFIFO(datosMemoria->listaAccesosAPaginasRAM);
+
+}
+
+int cualReemplazarRAMLRU(){
+
+	return cualReemplazarPorLRU(datosMemoria->listaAccesosAPaginasRAM);
+
+}
+
+int cualReemplazarTLBFIFO(){
+
+	return cualReemplazarPorFIFO(datosMemoria->listaAccesosAPaginasTLB);
+}
+
+int cualReemplazarTLBLRU(){
+
+	return cualReemplazarPorLRU(datosMemoria->listaAccesosAPaginasTLB);
+}
+
+int cualReemplazarTLB(){
+
+	int cualReemplazar;
+
+switch (datosMemoria->tipoDeAlgoritmoTLB) {
+
+	case FIFO:
+		cualReemplazar = cualReemplazarTLBFIFO();
+		break;
+
+	case LRU:
+		cualReemplazar = cualReemplazarTLBLRU();
+		break;
+}
+
+	return cualReemplazar;
+}
+
+int cualReemplazarPorFIFO(t_list* listaAEvaluar){
+
+	return 0;
+}
+
+int cualReemplazarPorLRU(t_list* listaAEvaluar){
+
+	int var;
+
+	tipoAccesosAPagina* instanciaAccesoActual;
+
+	tipoAccesosAPagina* instanciaAccesoLRU = list_get(listaAEvaluar,0);
+
+	int posicionLRU = 0;
+
+	for (var = 1; var < list_size(listaAEvaluar); ++var) {
+
+		instanciaAccesoActual = list_get(listaAEvaluar,var);
+
+		if(instanciaAccesoActual->cantVecesAccedido<instanciaAccesoLRU->cantVecesAccedido){
+
+			instanciaAccesoLRU = instanciaAccesoActual;
+
+			posicionLRU = var;
+		}
+	}
+
+	return posicionLRU;
+}
+
+
+
