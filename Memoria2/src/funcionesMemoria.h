@@ -148,7 +148,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar);
 //FINALIZAR PROCESO
 /////////////////////
 
-bool instruccionASwapRealizada(tipoInstruccion instruccion,tipoRespuesta* respuesta) ;
+bool instruccionASwapRealizada(tipoInstruccion* instruccion,tipoRespuesta** respuesta) ;
 
 void quitarProceso(tipoInstruccion instruccion, int cpuaATratar);
 

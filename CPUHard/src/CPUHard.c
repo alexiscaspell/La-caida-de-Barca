@@ -53,33 +53,32 @@ void getRespuesta(int socket,tipoRespuesta* respuesta){	respuesta = recibirRespu
 
 int main(void) {
 
-	tipoConfigCPU* configuracion = cargarArchivoDeConfiguracionDeCPU("cfgCPU");
+	tipoConfigCPU* configuracion = cargarArchivoDeConfiguracionDeCPU("/root/workspace/La-caida-de-Barca/CPUHard/Debug/cfgCPU");
 
 	int socketCpu = crearSocket();
 
 	conectarAServidor(socketCpu,configuracion->ipMemoria,configuracion->puertoMemoria);
 
-	tipoInstruccion instruccionAEnviar;
+	tipoInstruccion* instruccionAEnviar = crearTipoInstruccion(19,INICIAR,2,"negro");
 
-	instruccionAEnviar.nroPagina =0;
+	printf("%d\n",instruccionAEnviar->nroPagina);
+	printf("%d\n",instruccionAEnviar->pid);
+	printf("%c\n",instruccionAEnviar->instruccion);
+	printf("%s\n",instruccionAEnviar->texto);
 
-	instruccionAEnviar.instruccion = INICIAR;
-
-	instruccionAEnviar.texto = "";
-
-	instruccionAEnviar.pid = 19;
+	printf("Instruccion a enviar...\n");
 
 	enviarInstruccion(socketCpu,instruccionAEnviar);
 
-	tipoRespuesta respuesta;
+	printf("Instruccion enviada\n");
 
-	getRespuesta(socketCpu,&respuesta);
+	tipoRespuesta* respuesta = recibirRespuesta(socketCpu);
 
-	printf("el estado de respuesta es %c\n",respuesta.respuesta);
+	printf("el estado de respuesta es %c\n",respuesta->respuesta);
 
-	printf("La info de respuesta es: %s\n",respuesta.informacion);
+	printf("La info de respuesta es: %s\n",respuesta->informacion);
 
-	if(respuesta.respuesta==PERFECTO)
+	if(respuesta->respuesta==PERFECTO)
 	printf("Ya se pudo iniciar el proceso...\n");
 
 	else

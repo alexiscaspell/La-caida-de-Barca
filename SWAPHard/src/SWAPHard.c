@@ -59,11 +59,18 @@ int main(void) {
 
 	int socketMemoria = crearSocketParaAceptarSolicitudes(socketSwap);
 
+	printf("pase :'(\n");
+
+	char* negro = "negro";
+
 	tipoRespuesta respuesta;
 
 	respuesta.respuesta = PERFECTO;
 
-	respuesta.informacion = "negro";
+	respuesta.informacion = negro;
+
+	printf("pase :'(\n");
+
 
 	while(true){
 
@@ -73,7 +80,7 @@ int main(void) {
 
 		printf("Recibi una instruccion del proceso %d de reserva de %d pagina/s\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
 
-		enviarRespuesta(socketMemoria,respuesta);
+		enviarRespuesta(socketMemoria,&respuesta);
 		}
 	}
 

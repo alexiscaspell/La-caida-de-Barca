@@ -1,5 +1,6 @@
 #include "funcionesMemoria.h"
 #include <commonsDeAsedio/estructuras.h>
+#include <commons/string.h>
 
 void destruirConfigMemoria(tipoConfigMemoria* estructuraDeConfiguracion) {
 	free(estructuraDeConfiguracion->ipSWAP);
@@ -113,7 +114,7 @@ void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
 
 	tipoRespuesta* respuesta;// = malloc(sizeof(tipoRespuesta));
 
-	if (puedoReservarEnSWAP(instruccion, respuesta)) {
+	if (puedoReservarEnSWAP(instruccion, &respuesta)) {
 
 		printf("pude reservar en swap!!\n");
 
@@ -136,12 +137,12 @@ void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
 		printf("agregue pagina a tabla de paginas\n");
 	}
 
-	enviarRespuesta(cpuATratar, *respuesta);
+	enviarRespuesta(cpuATratar, respuesta);
 }
 
 bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
 
-	return instruccionASwapRealizada(instruccion, respuesta);
+	return instruccionASwapRealizada(&instruccion, respuesta);
 }
 
 //////////////////
@@ -202,7 +203,7 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 			tipoRespuesta* respuestaSwap;
 
-			if(instruccionASwapRealizada(instruccionDeBorrado,respuestaSwap))
+			if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
 				destruirProceso(instruccion.pid);
 
 			respuesta->respuesta = MANQUEADO;
@@ -224,7 +225,7 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 					tipoRespuesta* respuestaSwap;
 
-					if(instruccionASwapRealizada(instruccionDeBorrado,respuestaSwap))
+					if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
 					destruirProceso(instruccion.pid);
 
 					respuesta->respuesta = MANQUEADO;
@@ -232,7 +233,7 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 					respuesta->informacion = "Tabla de paginas no existente";
 				}
 
-	enviarRespuesta(cpuATratar, *respuesta);
+	enviarRespuesta(cpuATratar, respuesta);
 
 	}
 
@@ -526,7 +527,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 		tipoRespuesta* respuestaSwap;
 
-		if(instruccionASwapRealizada(instruccionDeBorrado,respuestaSwap))
+		if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
 		destruirProceso(instruccion.pid);
 
 		respuesta->respuesta = MANQUEADO;
@@ -554,7 +555,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 					tipoRespuesta* respuestaSwap;
 
-					if(instruccionASwapRealizada(instruccionDeBorrado,respuestaSwap))
+					if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
 					destruirProceso(instruccion.pid);
 
 					respuesta->respuesta = MANQUEADO;
@@ -562,7 +563,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 					respuesta->informacion = "Tabla de paginas no existente";
 				}
 
-	enviarRespuesta(cpuATratar, *respuesta);
+	enviarRespuesta(cpuATratar, respuesta);
 	}
 
 void modificarBitDeModificacion(int nroPagina,int pid){
@@ -593,36 +594,36 @@ void modificarBitDeModificacion(int nroPagina,int pid){
 //FINALIZAR PROCESO
 ////////////////////
 
-bool instruccionASwapRealizada(tipoInstruccion instruccion,tipoRespuesta* respuesta) {
+bool instruccionASwapRealizada(tipoInstruccion* instruccion,tipoRespuesta** respuesta) {
 
 	enviarInstruccion(datosMemoria->socketSWAP, instruccion);
 
-	respuesta = recibirRespuesta(datosMemoria->socketSWAP);
+	*respuesta = recibirRespuesta(datosMemoria->socketSWAP);
 
 	printf("recibi respuesta de swap\n");
 
-	printf("el estado de respuesta es %c\n",respuesta->respuesta);
+	printf("el estado de respuesta es %c\n",(*respuesta)->respuesta);
 
-	printf("La info de respuesta es: %s\n",respuesta->informacion);
+	printf("La info de respuesta es: %s\n",(*respuesta)->informacion);
 
-	if(respuesta->respuesta==NULL)
+	if((*respuesta)->respuesta==NULL)
 		printf("No se puede leer estado de respuesta\n");
 
-	return (respuesta->respuesta == PERFECTO);
+	return ((*respuesta)->respuesta == PERFECTO);
 }
 
 void quitarProceso(tipoInstruccion instruccion, int cpuaATratar) {
 
 	tipoRespuesta* respuesta;
 
-	instruccionASwapRealizada(instruccion, respuesta);
+	instruccionASwapRealizada(&instruccion, respuesta);
 
 	if (respuesta->respuesta == PERFECTO) {
 
 		destruirProceso(instruccion.pid);
 	}
 
-	enviarRespuesta(cpuaATratar, *respuesta);
+	enviarRespuesta(cpuaATratar, respuesta);
 }
 
 void destruirProceso(int pid) {
@@ -726,7 +727,7 @@ bool agregarPagina(int nroPagina,int pid,char* pagina){
 
 			tipoRespuesta* respuestaSwap;
 
-			operacionExitosa = instruccionASwapRealizada(*instruccion,respuestaSwap);
+			operacionExitosa = instruccionASwapRealizada(instruccion,respuestaSwap);
 
 			if(operacionExitosa){
 
@@ -824,12 +825,12 @@ int cualReemplazarRAM(){
 
 bool RAMLlena(){
 
-	return (list_size(datosMemoria->listaRAM)==datosMemoria->configuracion->cantidadDeMarcos);
+	return (list_size(datosMemoria->listaRAM)>=datosMemoria->configuracion->cantidadDeMarcos);
 }
 
 bool TLBLlena(){
 
-	return false;//Aca deberia tener un campo en archivo de configuracion
+	return list_size(datosMemoria->listaTLB)>=datosMemoria->configuracion->entradasDeTLB;
 }
 
 int cualReemplazarRAMFIFO(){
