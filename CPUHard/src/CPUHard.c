@@ -53,7 +53,7 @@ void getRespuesta(int socket,tipoRespuesta* respuesta){	respuesta = recibirRespu
 
 int main(void) {
 
-	tipoConfigCPU* configuracion = cargarArchivoDeConfiguracionDeCPU("/root/workspace/La-caida-de-Barca/CPUHard/Debug/cfgCPU");
+	tipoConfigCPU* configuracion = cargarArchivoDeConfiguracionDeCPU("cfgCPU");
 
 	int socketCpu = crearSocket();
 

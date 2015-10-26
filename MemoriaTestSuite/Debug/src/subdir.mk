@@ -4,13 +4,19 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/CPUHard.c 
+../src/MemoriaTestSuite.c \
+../src/Tests.c \
+../src/funcionesMemoria.c 
 
 OBJS += \
-./src/CPUHard.o 
+./src/MemoriaTestSuite.o \
+./src/Tests.o \
+./src/funcionesMemoria.o 
 
 C_DEPS += \
-./src/CPUHard.d 
+./src/MemoriaTestSuite.d \
+./src/Tests.d \
+./src/funcionesMemoria.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

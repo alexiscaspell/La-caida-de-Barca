@@ -4,6 +4,8 @@
 #include <commonsDeAsedio/cliente-servidor.h>
 #include <commons/collections/list.h>
 #include <commonsDeAsedio/select.h>
+#include <commonsDeAsedio/thread.h>
+#include "funcionesSeñales.h"
 //-----------------------------------------------------------------
 #include <sys/types.h>
 #include <unistd.h>
@@ -14,7 +16,7 @@ int main(void) {
 
 //////////////////////////INICIALIZACION DE VARIABLES////////////////////////////////
 
-	tipoConfigMemoria* configuracion = cargarArchivoDeConfiguracionDeMemoria("/root/workspace/La-caida-de-Barca/Memoria2/Debug/cfgMemoria");
+	tipoConfigMemoria* configuracion = cargarArchivoDeConfiguracionDeMemoria("cfgMemoria");
 
 	int socketParaCpus = crearSocket();
 
@@ -65,6 +67,10 @@ int main(void) {
 	conectarAServidor(socketParaSwap,configuracion->ipSWAP,configuracion->puertoSWAP);
 
 	escucharConexiones(socketParaCpus,maxConexionesEntrantes);
+
+	pthread_t hiloSignals;
+
+	crearThread(&hiloSignals,funcionPrueba,datosMemoria);
 
 
 /////////////////////////////////////////////////////////////////////////////////////
