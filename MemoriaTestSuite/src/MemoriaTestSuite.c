@@ -28,6 +28,8 @@ int main(void) {
 
 	setearEstructuraMemoria(datosMemoria);
 
+	setearMemoriaParTests(datosMemoria);
+
 	correrTests();
 
 	return EXIT_SUCCESS;

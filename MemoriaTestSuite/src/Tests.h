@@ -13,5 +13,8 @@
 
 void correrTests();
 
+tipoEstructuraMemoria* datosMemoria;
+
+void setearMemoriaParTests(tipoEstructuraMemoria*);
 
 #endif /* TESTS_H_ */
