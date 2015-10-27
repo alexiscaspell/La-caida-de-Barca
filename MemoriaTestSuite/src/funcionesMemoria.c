@@ -79,7 +79,7 @@ void tratarPeticion(int cpuAtendida) {
 
 	switch (instruccion->instruccion) {
 	case INICIAR:
-		reservarMemoriaParaProceso(*instruccion, cpuAtendida);
+		reservarMemoriaParaProceso(*instruccion);
 		break;
 
 	case LEER:
@@ -87,7 +87,7 @@ void tratarPeticion(int cpuAtendida) {
 		break;
 
 	case ESCRIBIR:
-			escribirPagina(*instruccion,cpuAtendida);
+			escribirPagina(*instruccion);
 		break;
 
 	case FINALIZAR:
@@ -110,11 +110,15 @@ void tratarPeticiones() {
 //////////////////
 //INICIAR
 /////////////////
-void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
+void reservarMemoriaParaProceso(tipoInstruccion instruccion) {
 
-	tipoRespuesta* respuesta;// = malloc(sizeof(tipoRespuesta));
+	//tipoRespuesta respuesta;// = malloc(sizeof(tipoRespuesta));
 
-	if (puedoReservarEnSWAP(instruccion, &respuesta)) {
+	//respuesta.respuesta = PERFECTO;
+
+	//respuesta.informacion = "Todo ok";
+
+	if (true/*puedoReservarEnSWAP(instruccion, &respuesta)*/) {
 
 		printf("pude reservar en swap!!\n");
 
@@ -137,7 +141,7 @@ void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar) {
 		printf("agregue pagina a tabla de paginas\n");
 	}
 
-	enviarRespuesta(cpuATratar, respuesta);
+	//enviarRespuesta(cpuATratar, respuesta);
 }
 
 bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
@@ -453,7 +457,9 @@ bool estaHabilitadaLaTLB(){
 	return string_equals_ignore_case(datosMemoria->configuracion->TLBHabilitada,"SI");
 }
 
-void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
+void escribirPagina(tipoInstruccion instruccion){
+
+	printf("Ingrese a escribir pagina..\n");
 
 	tipoRespuesta* respuesta = malloc(sizeof(tipoRespuesta));
 
@@ -467,11 +473,14 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 	if(strlen(instruccion.texto)<datosMemoria->configuracion->tamanioDeMarco&&instruccion.nroPagina<=tablaDeProceso->paginasPedidas){
 
+		printf("La pagina existe!!\n");
 		if(estaHabilitadaLaTLB())
 			posicionDePag = dondeEstaEnTLB(instruccion.nroPagina,instruccion.pid);
 
 
 		if (posicionDePag<0) {
+
+			printf("Pagina no esta en TLB..\n");
 
 		posicionDePag = dondeEstaEnTabla(instruccion.nroPagina,instruccion.pid);
 
@@ -479,6 +488,8 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 		}
 
 		if(posicionDePag<0) {
+
+		printf("Pagina no esta en RAM..\n");
 
 		 traerPaginaDesdeSwap(instruccion, respuesta);
 
@@ -527,7 +538,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 		tipoRespuesta* respuestaSwap;
 
-		if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
+		if(instruccionASwapRealizada(&instruccionDeBorrado,&respuestaSwap))
 		destruirProceso(instruccion.pid);
 
 		respuesta->respuesta = MANQUEADO;
@@ -555,7 +566,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 
 					tipoRespuesta* respuestaSwap;
 
-					if(instruccionASwapRealizada(&instruccionDeBorrado,respuestaSwap))
+					if(instruccionASwapRealizada(&instruccionDeBorrado,&respuestaSwap))
 					destruirProceso(instruccion.pid);
 
 					respuesta->respuesta = MANQUEADO;
@@ -563,7 +574,7 @@ void escribirPagina(tipoInstruccion instruccion,int cpuATratar){
 					respuesta->informacion = "Tabla de paginas no existente";
 				}
 
-	enviarRespuesta(cpuATratar, respuesta);
+	datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
 	}
 
 void modificarBitDeModificacion(int nroPagina,int pid){
@@ -596,7 +607,7 @@ void modificarBitDeModificacion(int nroPagina,int pid){
 
 bool instruccionASwapRealizada(tipoInstruccion* instruccion,tipoRespuesta** respuesta) {
 
-	enviarInstruccion(datosMemoria->socketSWAP, instruccion);
+	/*enviarInstruccion(datosMemoria->socketSWAP, instruccion);
 
 	*respuesta = recibirRespuesta(datosMemoria->socketSWAP);
 
@@ -607,9 +618,16 @@ bool instruccionASwapRealizada(tipoInstruccion* instruccion,tipoRespuesta** resp
 	printf("La info de respuesta es: %s\n",(*respuesta)->informacion);
 
 	if((*respuesta)->respuesta==NULL)
-		printf("No se puede leer estado de respuesta\n");
+		printf("No se puede leer estado de respuesta\n");*/
 
-	return ((*respuesta)->respuesta == PERFECTO);
+	tipoRespuesta r;
+
+	r.respuesta = PERFECTO;
+	r.informacion = instruccion->texto;
+
+	*respuesta = &r;
+
+	return true;//((*respuesta)->respuesta == PERFECTO);
 }
 
 void quitarProceso(tipoInstruccion instruccion, int cpuaATratar) {

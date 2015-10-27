@@ -16,20 +16,6 @@
 
 int main(void) {
 
-	tipoConfigMemoria* configuracion = cargarArchivoDeConfiguracionDeMemoria("cfgMemoria");
-
-	bool memoriaActiva = true;
-
-	tipoEstructuraMemoria* datosMemoria = malloc(sizeof(tipoEstructuraMemoria));
-
-	datosMemoria->configuracion = configuracion;
-
-	datosMemoria->memoriaActiva = &memoriaActiva;
-
-	setearEstructuraMemoria(datosMemoria);
-
-	setearMemoriaParTests(datosMemoria);
-
 	correrTests();
 
 	return EXIT_SUCCESS;

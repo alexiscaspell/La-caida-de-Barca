@@ -56,6 +56,9 @@ typedef struct{
 	//t_list* listaAccesosAPaginasTLB;//esto para
 	char tipoDeAlgoritmoRAM;//que funcione
 	char tipoDeAlgoritmoTLB;//fifo y lru
+	tipoInstruccion* instruccionEnviadaASwap;
+	tipoRespuesta* respuestaEnviadaACpu;
+	tipoInstruccion* instruccionRecibidaDeCpu;
 }tipoEstructuraMemoria;
 
 typedef struct{
@@ -108,7 +111,7 @@ void tratarPeticiones();
 //INICIAR
 /////////////////
 
-void reservarMemoriaParaProceso(tipoInstruccion instruccion, int cpuATratar);
+void reservarMemoriaParaProceso(tipoInstruccion instruccion);
 
 bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta);
 
@@ -142,7 +145,7 @@ void liberarPaginaDeRAM(int posicionEnRam);
 
 bool estaHabilitadaLaTLB();
 
-void escribirPagina(tipoInstruccion instruccion,int cpuATratar);
+void escribirPagina(tipoInstruccion instruccion);
 
 /////////////////////
 //FINALIZAR PROCESO
@@ -192,6 +195,8 @@ void volcarRamALog();
 void limpiarTabla();
 
 void limpiarListaAccesos();
+
+void modificarBitDeModificacion(int nroPagina,int pid);
 
 
 #endif /* FUNCIONESMEMORIA_H_ */
