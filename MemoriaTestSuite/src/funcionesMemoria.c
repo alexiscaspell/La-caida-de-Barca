@@ -141,7 +141,6 @@ void reservarMemoriaParaProceso(tipoInstruccion instruccion) {
 		printf("agregue pagina a tabla de paginas\n");
 	}
 
-	//enviarRespuesta(cpuATratar, respuesta);
 }
 
 bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
@@ -237,7 +236,7 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 					respuesta->informacion = "Tabla de paginas no existente";
 				}
 
-	enviarRespuesta(cpuATratar, respuesta);
+	datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
 
 	}
 
@@ -333,9 +332,11 @@ int dondeEstaEnTLB(int nroPagina, int pid) {
 	return posicionDePagina;
 }
 
-void traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
+bool traerPaginaDesdeSwap(tipoInstruccion instruccion, tipoRespuesta* respuesta) {
 
 	//ejecutar algoritmos locos
+
+	return false;
 
 }
 
@@ -431,19 +432,21 @@ void quitarTabla(int pid) {
 
 		liberarPaginaDeRAM(dondeEstaEnTabla(paginaActual->numeroDePagina,pid));
 
-		free(paginaActual);
+		//free(paginaActual);
+
+		list_remove(tablaDeProcesoABorrar->frames,var);
 	}
 
-	free(tablaDeProcesoABorrar);
+	//free(tablaDeProcesoABorrar);
 
 	list_remove(datosMemoria->listaTablaPaginas,dondeEstaTabla);
 }
 
 void liberarPaginaDeRAM(int posicionEnRam){
 
-	char* pagina = list_get(datosMemoria->listaRAM,posicionEnRam);
+	//char* pagina = list_get(datosMemoria->listaRAM,posicionEnRam);
 
-	free(pagina);
+	//free(pagina);
 
 	list_remove(datosMemoria->listaRAM,posicionEnRam);
 }
@@ -491,8 +494,9 @@ void escribirPagina(tipoInstruccion instruccion){
 
 		printf("Pagina no esta en RAM..\n");
 
-		 traerPaginaDesdeSwap(instruccion, respuesta);
+		bool traidoDesdeSwap = traerPaginaDesdeSwap(instruccion, respuesta);
 
+		if(traidoDesdeSwap)
 		 posicionDePag = dondeEstaEnTabla(instruccion.nroPagina,instruccion.pid);
 		}
 
@@ -574,7 +578,7 @@ void escribirPagina(tipoInstruccion instruccion){
 					respuesta->informacion = "Tabla de paginas no existente";
 				}
 
-	datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
+	//datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
 	}
 
 void modificarBitDeModificacion(int nroPagina,int pid){
@@ -827,8 +831,8 @@ void limpiarTabla(){
 
 void limpiarListaAccesos(){
 	int var;
-	for (var = list_size(datosMemoria->listaAccesosAPaginasRAM); var>=0; ++var) {
-		list_remove(datosMemoria->listaAccesosAPaginasRAM,var);
+	for (var = list_size(datosMemoria->listaAccesosAPaginasRAM); var>0; ++var) {
+		list_remove(datosMemoria->listaAccesosAPaginasRAM,var-1);
 	}
 }
 

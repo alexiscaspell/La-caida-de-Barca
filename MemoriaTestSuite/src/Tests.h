@@ -10,6 +10,7 @@
 #include "funcionesMemoria.h"
 #include <cspecs/cspec.h>
 #include "stdbool.h"
+#include <commons/string.h>
 
 void correrTests();
 
