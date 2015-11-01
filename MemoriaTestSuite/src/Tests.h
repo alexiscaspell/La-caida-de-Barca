@@ -18,4 +18,11 @@ tipoEstructuraMemoria* datosMemoria;
 
 void setearMemoriaParTests(tipoEstructuraMemoria*);
 
+void iniciarProceso(int cantPaginas,int pid);
+
+void escribirPaginaHard(int nroPagina,int pid,char* pagina);
+
+void leerPaginaHard(int nroPagina,int pid);
+
+
 #endif /* TESTS_H_ */

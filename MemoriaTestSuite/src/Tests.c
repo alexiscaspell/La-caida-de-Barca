@@ -202,6 +202,82 @@ void correrTests(){
 
 		    }end
 
+			it("Test sacar pagina de TLB por FIFO"){
+
+		    	printf("Test sacar pagina de TLB por FIFO\n");
+
+		    	datosMemoria->configuracion->entradasDeTLB = 2;
+
+		    	datosMemoria->tipoDeAlgoritmoTLB = FIFO;
+
+		    	iniciarProceso(3,1);
+
+		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+
+		    	bool estaPaginaEnTLB = dondeEstaEnTLB(0,1)>=0;
+
+		    	escribirPaginaHard(1,1,"pagina negra con d'fiesta blanca de ojos azules");
+
+		    	escribirPaginaHard(2,1,"nueva pagina");
+
+		    	bool paginaYaNoEstaEnTLB = dondeEstaEnTLB(0,1)<0;
+
+		    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB) be truthy;
+
+		    }end
+
+			it("Test sacar pagina de TLB por LRU"){
+
+					    	printf("Test sacar pagina de TLB por LRU\n");
+
+					    	datosMemoria->configuracion->entradasDeTLB = 2;
+
+					    	datosMemoria->tipoDeAlgoritmoTLB = LRU;
+
+					    	iniciarProceso(3,1);
+
+					    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+
+					    	escribirPaginaHard(1,1,"pagina negra con d'fiesta blanca de ojos azules");
+
+					    	bool estaPaginaEnTLB = dondeEstaEnTLB(1,1)>=0;
+
+					    	leerPaginaHard(0,1);
+
+					    	escribirPaginaHard(2,1,"nueva pagina");
+
+					    	bool paginaYaNoEstaEnTLB = dondeEstaEnTLB(1,1)<0;
+
+					    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB) be truthy;
+
+					    }end
+
+			it("Test sacar pagina de Ram por LRU"){
+
+		    	printf("Test sacar pagina de Ram por LRU\n");
+
+		    	datosMemoria->configuracion->cantidadDeMarcos = 2;
+
+		    	datosMemoria->tipoDeAlgoritmoTLB = LRU;
+
+		    	iniciarProceso(3,1);
+
+		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+
+		    	bool estaPaginaEnRAM = dondeEstaEnTabla(0,1)>=0;
+
+		    	escribirPaginaHard(1,1,"pagina negra con d'fiesta blanca de ojos azules");
+
+
+
+		    	escribirPaginaHard(2,1,"nueva pagina");
+
+		    	bool paginaYaNoEstaEnRAM = dondeEstaEnTabla(0,1)<0;
+
+		    	should_bool(estaPaginaEnRAM&&paginaYaNoEstaEnRAM) be truthy;
+
+		    }end
+
 
 	    }end
 
@@ -235,7 +311,51 @@ void funcionParaEscribir(){
 
 
 
+}
 
+void leerPaginaHard(int nroPagina,int pid){
+
+	tipoInstruccion instruccionLectura;
+
+		instruccionLectura.instruccion = LEER;
+
+		instruccionLectura.nroPagina = nroPagina;
+
+		instruccionLectura.pid  = pid;
+
+		enviarPaginaPedidaACpu(instruccionLectura,0);
+}
+
+
+void escribirPaginaHard(int nroPagina,int pid,char* pagina){
+
+	tipoInstruccion instruccionEscribir;
+
+		instruccionEscribir.instruccion = ESCRIBIR;
+
+		instruccionEscribir.nroPagina = nroPagina;
+
+		instruccionEscribir.pid  = pid;
+
+		instruccionEscribir.texto = pagina;
+
+		escribirPagina(instruccionEscribir);
+
+}
+
+void iniciarProceso(int cantPaginas,int pid){
+
+	tipoInstruccion instruccionDeInicio;
+
+	instruccionDeInicio.instruccion = INICIAR;
+
+	instruccionDeInicio.nroPagina = cantPaginas;
+
+	instruccionDeInicio.pid  = pid;
+
+	instruccionDeInicio.texto = "";
+
+	reservarMemoriaParaProceso(instruccionDeInicio);
 }
 
 void cargarCosas(){
