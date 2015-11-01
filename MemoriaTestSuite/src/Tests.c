@@ -32,6 +32,7 @@ void correrTests(){
 	        } end
 
 			it("Test crear espacio para pagina"){
+	        	printf("Test crear espacio para pagina\n");
 
 	        	tipoInstruccion instruccionDeInicio;
 
@@ -56,6 +57,7 @@ void correrTests(){
 	        }end
 
 			it("Test escribir pagina inicial"){
+	        	printf("Test escribir pagina inicial\n");
 
 	        	tipoInstruccion instruccionDeInicio;
 
@@ -94,6 +96,7 @@ void correrTests(){
 	        }end
 
 			it("Test lectura de unica pagina"){
+	        	printf("Test lectura de unica pagina\n");
 
 	        	tipoInstruccion instruccionDeInicio;
 
@@ -107,26 +110,98 @@ void correrTests(){
 
 	        	reservarMemoriaParaProceso(instruccionDeInicio);
 
-	        	tipoInstruccion instruccion;
+	        	tipoInstruccion instruccionEscritura;
 
-	        	instruccion.instruccion = ESCRIBIR;
+	        	instruccionEscritura.instruccion = ESCRIBIR;
 
-	        	instruccion.nroPagina = 0;
+	        	instruccionEscritura.nroPagina = 0;
 
-	        	instruccion.pid  = 10;
+	        	instruccionEscritura.pid  = 10;
 
-	        	instruccion.texto = "Pagina de prueba hecha con negrada y finas hierbas";
+	        	instruccionEscritura.texto = "Pagina de prueba hecha con negrada y finas hierbas";
 
-	        	escribirPagina(instruccion);
+	        	escribirPagina(instruccionEscritura);
 
-	        	instruccion.instruccion = LEER;
+	        	printf("Ahora hay que leer lap pagina...\n");
 
-	        	enviarPaginaPedidaACpu(instruccion,0);
+	        	tipoInstruccion instruccionDeLectura;
 
-	        	bool condicionFinal = (string_equals_ignore_case(datosMemoria->respuestaEnviadaACpu->informacion,instruccion.texto))&&(datosMemoria->respuestaEnviadaACpu->respuesta);
+	        	instruccionDeLectura.instruccion=LEER;
+
+	        	instruccionDeLectura.nroPagina = 0;
+
+	        	instruccionDeLectura.pid = 10;
+
+	        	instruccionDeLectura.texto="";
+
+	        	enviarPaginaPedidaACpu(instruccionDeLectura,0);
+
+	        	bool condicionFinal = (string_equals_ignore_case(datosMemoria->respuestaEnviadaACpu->informacion,instruccionEscritura.texto))&&(datosMemoria->respuestaEnviadaACpu->respuesta);
 
 	        	should_bool(condicionFinal) be truthy;
 	        }end
+
+
+			it("Test modificar pagina"){
+
+			printf("Test modificar pagina\n");
+
+				//inicio pagina
+
+				tipoInstruccion instruccionIniciar;
+					instruccionIniciar.instruccion = INICIAR;
+					instruccionIniciar.nroPagina = 3;
+					instruccionIniciar.pid  = 1;
+					instruccionIniciar.texto = "";
+
+				reservarMemoriaParaProceso(instruccionIniciar);
+
+				int posicionEnTablaPaginas = buscarTabla(instruccionIniciar.pid);
+				tipoTablaPaginas* instruccionEnTablaPaginas = list_get(datosMemoria->listaTablaPaginas, posicionEnTablaPaginas);
+
+				bool creePagina = (posicionEnTablaPaginas != -1);
+
+				//escribo la pagina por primera vez
+
+				tipoInstruccion instruccionEcribir;
+					instruccionEcribir.instruccion = ESCRIBIR;
+					instruccionEcribir.nroPagina = 1;
+					instruccionEcribir.pid  = 1;
+					instruccionEcribir.texto = "pagina que NO tiene finas hiervas";
+
+				escribirPagina(instruccionEcribir);
+
+				printf("Pagina antes:\n%s\n",list_get(datosMemoria->listaRAM,0));
+
+
+				tipoPagina* paginaAModificar = list_get(instruccionEnTablaPaginas->frames , 0);
+				char* textoDePaginaAntes = list_get(datosMemoria->listaRAM, paginaAModificar->posicionEnRAM);
+
+				bool escribiPagina = ( list_size(instruccionEnTablaPaginas->frames) > 0 );
+
+				//modifico la pagina que tengo cargada
+
+				tipoInstruccion instruccionModificar;
+					instruccionModificar.instruccion = ESCRIBIR;
+					instruccionModificar.nroPagina = 1;
+					instruccionModificar.pid  = 1;
+					instruccionModificar.texto = "ahora tiene finas hiervas y D'FIESTA";
+
+				escribirPagina(instruccionModificar);
+
+				char* textoDePaginaDespues = list_get(datosMemoria->listaRAM, paginaAModificar->posicionEnRAM );
+
+				bool modifiquePagina = (
+					(paginaAModificar->modificado) &&
+					(!string_equals_ignore_case(textoDePaginaAntes, textoDePaginaDespues))
+				);
+
+				printf("Pagina despues:\n%s\n",list_get(datosMemoria->listaRAM,0));
+
+				should_bool(creePagina && escribiPagina && modifiquePagina) be truthy;
+
+		    }end
+
 
 	    }end
 
@@ -151,12 +226,15 @@ void borrarRastrosDeTest(){
 
 	limpiarRam();
 
-	//limpiarTabla();//tira error
+	limpiarTabla();
 
 	limpiarListaAccesos();
 }
 
 void funcionParaEscribir(){
+
+
+
 
 }
 

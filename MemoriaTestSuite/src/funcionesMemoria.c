@@ -154,6 +154,8 @@ bool puedoReservarEnSWAP(tipoInstruccion instruccion, tipoRespuesta* respuesta) 
 
 void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
+	printf("Comenzando lectura de pagina..\n");
+
 	tipoRespuesta* respuesta = malloc(sizeof(tipoRespuesta));
 
 	int posicionDePag = -1,dondeEstaTabla = buscarTabla(instruccion.pid);
@@ -162,11 +164,17 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 	if(dondeEstaTabla>=0){
 
-		if(estaHabilitadaLaTLB())
+		if(estaHabilitadaLaTLB()){
+			printf("Esta la TLB habilitada!\n");
 			posicionDePag = dondeEstaEnTLB(instruccion.nroPagina,instruccion.pid);
+
+			printf("Pagina buscada en TLB..\n");
+		}
 
 
 		if (posicionDePag<0) {
+
+			printf("Pagina no esta en TLB..\n");
 
 		posicionDePag = dondeEstaEnTabla(instruccion.nroPagina,instruccion.pid);
 
@@ -175,22 +183,35 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 		if(posicionDePag<0) {
 
-		 traerPaginaDesdeSwap(instruccion, respuesta);
+		printf("Pagina no esta en RAM..\n");
 
+		 bool traidoDesdeSwap = traerPaginaDesdeSwap(instruccion, respuesta);
+
+		 if(traidoDesdeSwap)
 		 posicionDePag = dondeEstaEnTabla(instruccion.nroPagina,instruccion.pid);
 		}
 
 
 		if(posicionDePag>=0){
 
+			printf("Pagina encontrada!!\n");
+
 		respuesta->respuesta = PERFECTO;
 
 		respuesta->informacion = malloc(datosMemoria->configuracion->tamanioDeMarco);
 
+		printf("Reserve memoria para enviar pagina\n");
+
 		respuesta->informacion = traerPaginaDesdeRam(posicionDePag);
 
-		if(!estaEnTLB&&estaHabilitadaLaTLB())
+		printf("Asigne pagina a respuesta..\n");
+
+		if(!estaEnTLB&&estaHabilitadaLaTLB()){
+			printf("Agregando pagina a TLB..\n");
 			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
+			printf("Pagina agregada a TLB\n");
+
+		}
 
 				}
 		else{
@@ -237,6 +258,8 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 				}
 
 	datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
+
+	printf("Paseeee :'(\n");
 
 	}
 
@@ -316,7 +339,7 @@ int dondeEstaEnTLB(int nroPagina, int pid) {
 
 	for (var = 0; var < list_size(datosMemoria->listaTLB); ++var) {
 
-		estructuraTLBActual = list_get(datosMemoria->listaRAM, var);
+		estructuraTLBActual = list_get(datosMemoria->listaTLB, var);
 
 		if (estructuraTLBActual->numeroDePagina == nroPagina&& estructuraTLBActual->pid == pid) {
 
@@ -508,11 +531,15 @@ void escribirPagina(tipoInstruccion instruccion){
 
 		if(posicionDePag>=0){
 
-		char* paginaAModificar = traerPaginaDesdeRam(posicionDePag);
+		char* paginaAModificar;//traerPaginaDesdeRam(posicionDePag);
 
-		free(paginaAModificar);
+		//free(paginaAModificar);
+
+		//printf("Pase el free!!\n");
 
 		paginaAModificar = malloc(datosMemoria->configuracion->tamanioDeMarco);
+
+		//paginaAModificar = string_duplicate(instruccion.texto);
 
 		memcpy(paginaAModificar,instruccion.texto,datosMemoria->configuracion->tamanioDeMarco);
 
@@ -520,12 +547,13 @@ void escribirPagina(tipoInstruccion instruccion){
 
 		modificarBitDeModificacion(instruccion.nroPagina,instruccion.pid);
 
-		if(!estaEnTLB&&estaHabilitadaLaTLB())
-			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
 
 				}
 		else
 			agregarPagina(instruccion.nroPagina,instruccion.pid,instruccion.texto);
+
+		if(!estaEnTLB&&estaHabilitadaLaTLB())
+			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
 		}
 
 	else{
@@ -580,6 +608,7 @@ void escribirPagina(tipoInstruccion instruccion){
 
 	//datosMemoria->respuestaEnviadaACpu = respuesta;//enviarRespuesta(cpuATratar, respuesta);
 	}
+
 
 void modificarBitDeModificacion(int nroPagina,int pid){
 
@@ -682,7 +711,7 @@ void destruirProceso(int pid) {
 
 void agregarPaginaATLB(int nroPagina,int pid,int posicionEnRam){
 
-	if(!TLBLlena()){
+	if(TLBLlena()){
 
 		int posicionAReemplazar = cualReemplazarTLB();
 
@@ -800,7 +829,7 @@ void quitarPaginaDeTLB(int nroPagina,int pid){
 void limpiarTLB(){
 	int var;
 	for (var = 0; var < list_size(datosMemoria->listaTLB); ++var) {
-		list_remove(datosMemoria->listaTLB,var);
+		list_remove(datosMemoria->listaTLB,0);//var);
 	}
 }
 
@@ -819,14 +848,21 @@ void limpiarTabla(){
 
 	int var;
 
-	tipoTablaPaginas* instanciaTabla;
+	/*tipoTablaPaginas* instanciaTabla;
 
 	for (var = list_size(datosMemoria->listaTablaPaginas); var >=0; --var) {
 
 		instanciaTabla = list_get(datosMemoria->listaTablaPaginas,var);
 
 		quitarTabla(instanciaTabla->pid);
+	}*/
+
+	for (var = 0; var < list_size(datosMemoria->listaTablaPaginas); ++var) {
+
+		list_remove(datosMemoria->listaTablaPaginas,0);
+
 	}
+
 }
 
 void limpiarListaAccesos(){
