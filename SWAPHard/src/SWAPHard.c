@@ -80,6 +80,17 @@ int main(void) {
 
 		printf("Recibi una instruccion del proceso %d de reserva de %d pagina/s\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
 
+		respuesta.respuesta=PERFECTO;
+
+		enviarRespuesta(socketMemoria,&respuesta);
+		}
+
+	if(instruccionRecibida->instruccion==LEER){
+
+		printf("Recibi una solicitud de lectura de la pag %d del proceso %d\n",instruccionRecibida->nroPagina,instruccionRecibida->pid);
+
+		respuesta.respuesta=MANQUEADO;
+
 		enviarRespuesta(socketMemoria,&respuesta);
 		}
 	}

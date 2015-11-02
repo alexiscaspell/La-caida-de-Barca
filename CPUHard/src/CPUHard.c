@@ -84,6 +84,24 @@ int main(void) {
 	else
 		printf("Error de inicio de proceso..\n");
 
+	tipoInstruccion* instruccionNueva = crearTipoInstruccion(19,ESCRIBIR,0,"negro conchatumare");
+
+	enviarInstruccion(socketCpu,instruccionNueva);
+
+	tipoRespuesta* respuestaEscribir = recibirRespuesta(socketCpu);
+
+	printf("el estado de respuesta es %c\n",respuestaEscribir->respuesta);
+
+	printf("La info de respuesta es: %s\n",respuestaEscribir->informacion);
+
+	if(respuestaEscribir->respuesta==PERFECTO)
+	printf("Ya se pudo escribir\n");
+
+	else
+		printf("Error de escritura..\n");
+
+	getchar();
+
 	liberarSocket(socketCpu);
 
 	destruirConfigCPU(configuracion);
