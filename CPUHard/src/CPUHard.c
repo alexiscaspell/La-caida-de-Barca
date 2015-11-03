@@ -59,15 +59,7 @@ int main(void) {
 
 	conectarAServidor(socketCpu,configuracion->ipMemoria,configuracion->puertoMemoria);
 
-	tipoInstruccion* instruccionAEnviar=malloc(sizeof(tipoInstruccion));// = crearTipoInstruccion(19,INICIAR,2,"negro");
-
-	instruccionAEnviar->instruccion = INICIAR;
-
-	instruccionAEnviar->nroPagina = 2;
-
-	instruccionAEnviar->pid = 19;
-
-	instruccionAEnviar->texto = string_duplicate("negro");
+	tipoInstruccion* instruccionAEnviar = crearTipoInstruccion(19,INICIAR,2,"negro");
 
 	printf("%d\n",instruccionAEnviar->nroPagina);
 	printf("%d\n",instruccionAEnviar->pid);
@@ -92,17 +84,9 @@ int main(void) {
 	else
 		printf("Error de inicio de proceso..\n");
 
-	tipoInstruccion instruccionNueva;// = crearTipoInstruccion(19,ESCRIBIR,0,"negro conchatumare");
+	tipoInstruccion* instruccionNueva = crearTipoInstruccion(19,ESCRIBIR,0,"negro conchatumare");
 
-	instruccionNueva.instruccion = ESCRIBIR;
-
-	instruccionNueva.nroPagina = 0;
-
-	instruccionNueva.pid = 19;
-
-	instruccionNueva.texto = "negro conchatumare";
-
-	enviarInstruccion(socketCpu,&instruccionNueva);
+	enviarInstruccion(socketCpu,instruccionNueva);
 
 	tipoRespuesta* respuestaEscribir = recibirRespuesta(socketCpu);
 
