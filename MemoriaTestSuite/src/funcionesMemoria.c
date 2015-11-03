@@ -166,9 +166,12 @@ void enviarPaginaPedidaACpu(tipoInstruccion instruccion, int cpuATratar) {
 
 		if(estaHabilitadaLaTLB()){
 			printf("Esta la TLB habilitada!\n");
+
 			posicionDePag = dondeEstaEnTLB(instruccion.nroPagina,instruccion.pid);
 
 			printf("Pagina buscada en TLB..\n");
+
+			printf("Posicion en TLB:%d\n",posicionDePag);
 		}
 
 
@@ -500,8 +503,11 @@ void escribirPagina(tipoInstruccion instruccion){
 	if(strlen(instruccion.texto)<datosMemoria->configuracion->tamanioDeMarco&&instruccion.nroPagina<=tablaDeProceso->paginasPedidas){
 
 		printf("La pagina existe!!\n");
-		if(estaHabilitadaLaTLB())
+		if(estaHabilitadaLaTLB()){
 			posicionDePag = dondeEstaEnTLB(instruccion.nroPagina,instruccion.pid);
+			if(posicionDePag>=0)
+				printf("Encontrada en TLB!!\n");
+		}
 
 
 		if (posicionDePag<0) {
@@ -548,12 +554,16 @@ void escribirPagina(tipoInstruccion instruccion){
 		modificarBitDeModificacion(instruccion.nroPagina,instruccion.pid);
 
 
+
+
 				}
 		else
 			agregarPagina(instruccion.nroPagina,instruccion.pid,instruccion.texto);
 
-		if(!estaEnTLB&&estaHabilitadaLaTLB())
+		if(!estaEnTLB&&estaHabilitadaLaTLB()){
 			agregarPaginaATLB(instruccion.nroPagina,instruccion.pid,posicionDePag);
+			printf("Agregada a TLB...\n");
+		}
 		}
 
 	else{
@@ -827,17 +837,22 @@ void quitarPaginaDeTLB(int nroPagina,int pid){
 }
 
 void limpiarTLB(){
-	int var;
+	/*int var;
 	for (var = 0; var < list_size(datosMemoria->listaTLB); ++var) {
 		list_remove(datosMemoria->listaTLB,0);//var);
+	}*/
+
+	list_clean_and_destroy_elements(datosMemoria->listaTLB,free);//No funciona!!
 	}
-}
 
 void limpiarRam(){
-	int var;
+	/*int var;
 	for (var = 0; var < list_size(datosMemoria->listaRAM); ++var) {//aca decia algo de modificar bits en tabla de paginas
 		liberarPaginaDeRAM(var);
-	}
+	}*/
+	//list_clean_and_destroy_elements(datosMemoria->listaRAM,free);
+	list_clean(datosMemoria->listaRAM);//No Funciona!!
+
 }
 
 void volcarRamALog(){
@@ -846,7 +861,9 @@ void volcarRamALog(){
 
 void limpiarTabla(){
 
-	int var;
+	/*
+	 *
+	 int var;
 
 	/*tipoTablaPaginas* instanciaTabla;
 
@@ -855,21 +872,25 @@ void limpiarTabla(){
 		instanciaTabla = list_get(datosMemoria->listaTablaPaginas,var);
 
 		quitarTabla(instanciaTabla->pid);
-	}*/
+	}
 
 	for (var = 0; var < list_size(datosMemoria->listaTablaPaginas); ++var) {
 
 		list_remove(datosMemoria->listaTablaPaginas,0);
 
-	}
+	}*/
+
+	list_clean_and_destroy_elements(datosMemoria->listaTablaPaginas,free);
 
 }
 
 void limpiarListaAccesos(){
-	int var;
+	/*int var;
 	for (var = list_size(datosMemoria->listaAccesosAPaginasRAM); var>0; ++var) {
 		list_remove(datosMemoria->listaAccesosAPaginasRAM,var-1);
-	}
+	}*/
+
+	list_clean_and_destroy_elements(datosMemoria->listaAccesosAPaginasRAM,free);
 }
 
 void quitarPaginaDeTabla(int nroPagina,int pid){

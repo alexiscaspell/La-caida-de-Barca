@@ -167,7 +167,7 @@ void correrTests(){
 					instruccionEcribir.instruccion = ESCRIBIR;
 					instruccionEcribir.nroPagina = 1;
 					instruccionEcribir.pid  = 1;
-					instruccionEcribir.texto = "pagina que NO tiene finas hiervas";
+					instruccionEcribir.texto = "pagina que NO tiene finas hierbas";
 
 				escribirPagina(instruccionEcribir);
 
@@ -185,7 +185,7 @@ void correrTests(){
 					instruccionModificar.instruccion = ESCRIBIR;
 					instruccionModificar.nroPagina = 1;
 					instruccionModificar.pid  = 1;
-					instruccionModificar.texto = "ahora tiene finas hiervas y D'FIESTA";
+					instruccionModificar.texto = "ahora tiene finas hierbas y D'FIESTA";
 
 				escribirPagina(instruccionModificar);
 
@@ -202,6 +202,80 @@ void correrTests(){
 
 		    }end
 
+			it("Test vaciar RAM"){
+		    	printf("Test vaciar RAM\n");
+
+		    	escribirPaginaHard(0,1,"");
+
+		    	escribirPaginaHard(1,1,"");
+
+		    	bool RAMCon2Pags = list_size(datosMemoria->listaRAM);
+
+		    	if(RAMCon2Pags)
+		    		printf("La RAM tiene 2 pags!!\n");
+
+		    	limpiarTLB();
+
+		    	bool RAMCon0Pags = list_size(datosMemoria->listaRAM)==0;
+
+				should_bool(RAMCon2Pags&&RAMCon0Pags) be truthy;
+
+		    }end
+
+			it("Test vaciar lista ordinaria"){
+		    	printf("Test vaciar lista ordinaria\n");
+
+		    	t_list* listaDePrueba = list_create();
+
+		    		int* x=malloc(sizeof(int));
+		    		*x=3;
+		    		int* y=malloc(sizeof(int));
+		    		*y=9;
+
+		    		list_add(listaDePrueba,x);
+		    		list_add(listaDePrueba,y);
+
+		    		bool listaCon2Ints = list_size(listaDePrueba);
+
+		    		if(listaCon2Ints)
+		    			printf("La lista tiene 2 ints!!\n");
+
+		    		list_clean_and_destroy_elements(listaDePrueba,free);
+
+		    		/*int var;
+		    		for (var = 0; var < list_size(listaDePrueba); ++var) {
+		    			list_remove(listaDePrueba,0);
+		    		}*/
+
+
+		    		bool listaCon0Ints = list_size(listaDePrueba)==0;
+
+		    		should_bool(listaCon2Ints&&listaCon0Ints) be truthy;
+
+		    }end
+
+			it("Test vaciar TLB"){
+		    	printf("Test vaciar TLB\n");
+
+		    	limpiarTLB();
+
+		    	escribirPaginaHard(0,1,"");
+
+		    	escribirPaginaHard(1,1,"");
+
+		    	bool TLBCon2Pags = list_size(datosMemoria->listaTLB);
+
+		    	if(TLBCon2Pags)
+		    		printf("La TLB tiene 2 pags!!\n");
+
+		    	limpiarTLB();
+
+		    	bool TLBCon0Pags = list_size(datosMemoria->listaTLB)==0;
+
+				should_bool(TLBCon2Pags&&TLBCon0Pags) be truthy;
+
+		    }end
+
 			it("Test sacar pagina de TLB por FIFO"){
 
 		    	printf("Test sacar pagina de TLB por FIFO\n");
@@ -212,7 +286,7 @@ void correrTests(){
 
 		    	iniciarProceso(3,1);
 
-		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hierbas");
 
 		    	bool estaPaginaEnTLB = dondeEstaEnTLB(0,1)>=0;
 
@@ -222,11 +296,12 @@ void correrTests(){
 
 		    	bool paginaYaNoEstaEnTLB = dondeEstaEnTLB(0,1)<0;
 
-		    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB) be truthy;
+		    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB&&dondeEstaEnTLB(2,1)>=0) be truthy;
 
 		    }end
 
 			it("Test sacar pagina de TLB por LRU"){
+
 
 					    	printf("Test sacar pagina de TLB por LRU\n");
 
@@ -236,19 +311,22 @@ void correrTests(){
 
 					    	iniciarProceso(3,1);
 
-					    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+					    	escribirPaginaHard(0,1,"pagina que NO tiene finas hierbas");
+
+					    	if(!TLBLlena())
+					    		printf("TLB No esta Llena!!\n");
+
+					    	leerPaginaHard(0,1);
 
 					    	escribirPaginaHard(1,1,"pagina negra con d'fiesta blanca de ojos azules");
 
-					    	bool estaPaginaEnTLB = dondeEstaEnTLB(1,1)>=0;
-
-					    	leerPaginaHard(0,1);
+					    	bool estaPaginaEnTLB = dondeEstaEnTLB(1,1)>=0&&dondeEstaEnTLB(0,1)>=0;
 
 					    	escribirPaginaHard(2,1,"nueva pagina");
 
 					    	bool paginaYaNoEstaEnTLB = dondeEstaEnTLB(1,1)<0;
 
-					    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB) be truthy;
+					    	should_bool(estaPaginaEnTLB&&paginaYaNoEstaEnTLB&&dondeEstaEnTLB(2,1)>=0) be truthy;
 
 					    }end
 
@@ -262,13 +340,11 @@ void correrTests(){
 
 		    	iniciarProceso(3,1);
 
-		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hiervas");
+		    	escribirPaginaHard(0,1,"pagina que NO tiene finas hierbas");
 
 		    	bool estaPaginaEnRAM = dondeEstaEnTabla(0,1)>=0;
 
 		    	escribirPaginaHard(1,1,"pagina negra con d'fiesta blanca de ojos azules");
-
-
 
 		    	escribirPaginaHard(2,1,"nueva pagina");
 
@@ -308,7 +384,6 @@ void borrarRastrosDeTest(){
 }
 
 void funcionParaEscribir(){
-
 
 
 }
