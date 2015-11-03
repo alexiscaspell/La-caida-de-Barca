@@ -257,13 +257,11 @@ void correrTests(){
 			it("Test vaciar TLB"){
 		    	printf("Test vaciar TLB\n");
 
-		    	limpiarTLB();
-
 		    	escribirPaginaHard(0,1,"");
 
 		    	escribirPaginaHard(1,1,"");
 
-		    	bool TLBCon2Pags = list_size(datosMemoria->listaTLB);
+		    	bool TLBCon2Pags = list_size(datosMemoria->listaTLB)==0;
 
 		    	if(TLBCon2Pags)
 		    		printf("La TLB tiene 2 pags!!\n");
