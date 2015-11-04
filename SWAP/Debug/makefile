@@ -26,23 +26,23 @@ endif
 all: SWAP
 
 dependents:
-	-cd /home/utnso/workspace/commonsDeAsedio/Debug && $(MAKE) all
+	-cd /home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug && $(MAKE) all
 
 # Tool invocations
-SWAP: $(OBJS) $(USER_OBJS) /home/utnso/workspace/commonsDeAsedio/Debug/libcommonsDeAsedio.so
+SWAP: $(OBJS) $(USER_OBJS) /home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	gcc -L"/home/utnso/workspace/commonsDeAsedio/Debug" -o "SWAP" $(OBJS) $(USER_OBJS) $(LIBS)
+	gcc -L"/home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug" -o "SWAP" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C_DEPS)$(EXECUTABLES) SWAP
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) SWAP
 	-@echo ' '
 
 .PHONY: all clean dependents
 .SECONDARY:
-/home/utnso/workspace/commonsDeAsedio/Debug/libcommonsDeAsedio.so:
+/home/alexis/git/tp-2015-2c-los-javimancos/commonsDeAsedio/Debug/libcommonsDeAsedio.so:
 
 -include ../makefile.targets

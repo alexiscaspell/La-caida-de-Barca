@@ -13,6 +13,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <commonsDeAsedio/error.h>
+#include <string.h>
+#include <commonsDeAsedio/mmap.h>
+#include <commons/collections/list.h>
+
+#include "estructurasSWAP.h"
 
 #define PUERTO_ESCUCHA "PUERTO_ESCUCHA"
 #define NOMBRE_SWAP "NOMBRE_SWAP"
@@ -20,20 +25,21 @@
 #define TAMANIO_PAGINA "TAMANIO_PAGINA"
 #define RETARDO_COMPACTACION "RETARDO_COMPACTACION"
 
-typedef struct{
-	int puertoDeEscucha;
-	char* nombreDeSWAP;
-	int cantidadDePaginas;
-	int tamanioDePagina;
-	int retardoDeCompactacion;
-}tipoConfigSWAP;
 
+
+////////////////////FUNCIONES PARA EL MANEJO DE ARCHIVO DE CONFIGURACION///////////////////////
 
 tipoConfigSWAP* crearConfigSWAP();
 
 void destruirConfigSWAP (tipoConfigSWAP* estructuraDeConfiguracion);
 
 tipoConfigSWAP* cargarArchivoDeConfiguracionDeSWAP(char* rutaDelArchivoDeConfiguracion);
+
+
+
+
+
+
 
 
 
