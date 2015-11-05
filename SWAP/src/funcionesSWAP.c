@@ -7,6 +7,7 @@
 
 #include "funcionesSWAP.h"
 
+////////////////////FUNCIONES PARA EL MANEJO DE ARCHIVO DE CONFIGURACION///////////////////////
 
 tipoConfigSWAP* crearConfigSWAP(){
 	tipoConfigSWAP* cfg = malloc(sizeof(tipoConfigSWAP));
@@ -26,7 +27,7 @@ tipoConfigSWAP* cargarArchivoDeConfiguracionDeSWAP(char* rutaDelArchivoDeConfigu
 
 	tipoConfigSWAP* cfg = crearConfigSWAP();
 
-	validar(config_has_property(archivoCfg,PUERTO_ESCUCHA)
+	validarErrorYAbortar(config_has_property(archivoCfg,PUERTO_ESCUCHA)
 			&& config_has_property(archivoCfg,NOMBRE_SWAP)
 			&& config_has_property(archivoCfg,CANTIDAD_PAGINAS)
 			&& config_has_property(archivoCfg,TAMANIO_PAGINA)
@@ -38,10 +39,21 @@ tipoConfigSWAP* cargarArchivoDeConfiguracionDeSWAP(char* rutaDelArchivoDeConfigu
 	cfg->nombreDeSWAP = string_duplicate(config_get_string_value(archivoCfg,NOMBRE_SWAP));
 	cfg->cantidadDePaginas = config_get_int_value(archivoCfg,CANTIDAD_PAGINAS);
 	cfg->retardoDeCompactacion = config_get_int_value(archivoCfg,RETARDO_COMPACTACION);
+	cfg->tamanioDePagina = config_get_int_value(archivoCfg,TAMANIO_PAGINA);
 
 
 	config_destroy(archivoCfg);
 
 	return cfg;
 }
+
+
+
+
+
+
+
+
+
+
 

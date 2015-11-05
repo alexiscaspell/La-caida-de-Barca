@@ -50,39 +50,35 @@ void destruirConfigCPU(tipoConfigCPU* estructuraDeConfiguracion);
 
 void getRespuesta(int socket,tipoRespuesta* respuesta){	respuesta = recibirRespuesta(socket);}
 
+int pid,socketCpu;
+
+void ejecutarInstruccion(char instruccion,int nroPag,char* testo);
+
 
 int main(void) {
 
 	tipoConfigCPU* configuracion = cargarArchivoDeConfiguracionDeCPU("cfgCPU");
 
-	int socketCpu = crearSocket();
+	socketCpu = crearSocket();
 
 	conectarAServidor(socketCpu,configuracion->ipMemoria,configuracion->puertoMemoria);
 
-	tipoInstruccion* instruccionAEnviar = crearTipoInstruccion(19,INICIAR,2,"negro");
+	pid=19;
+/*
+	ejecutarInstruccion(INICIAR,4,"");
+	ejecutarInstruccion(ESCRIBIR,1,"negro");
+	ejecutarInstruccion(ESCRIBIR,3,"blanco");
+	ejecutarInstruccion(LEER,3,"");*/
 
-	printf("%d\n",instruccionAEnviar->nroPagina);
-	printf("%d\n",instruccionAEnviar->pid);
-	printf("%c\n",instruccionAEnviar->instruccion);
-	printf("%s\n",instruccionAEnviar->texto);
+	/*ejecutarInstruccion(INICIAR,1,"");
+	ejecutarInstruccion(ESCRIBIR,0,"loboNegro");
+	ejecutarInstruccion(ESCRIBIR,1,"javiGorro");*/
 
-	printf("Instruccion a enviar...\n");
+	ejecutarInstruccion(INICIAR,3,"");
+	ejecutarInstruccion(ESCRIBIR,0,"todoOk");
+	ejecutarInstruccion(LEER,1,"javiGorro");
 
-	enviarInstruccion(socketCpu,instruccionAEnviar);
-
-	printf("Instruccion enviada\n");
-
-	tipoRespuesta* respuesta = recibirRespuesta(socketCpu);
-
-	printf("el estado de respuesta es %c\n",respuesta->respuesta);
-
-	printf("La info de respuesta es: %s\n",respuesta->informacion);
-
-	if(respuesta->respuesta==PERFECTO)
-	printf("Ya se pudo iniciar el proceso...\n");
-
-	else
-		printf("Error de inicio de proceso..\n");
+	getchar();
 
 	liberarSocket(socketCpu);
 
@@ -132,4 +128,18 @@ tipoConfigCPU* cargarArchivoDeConfiguracionDeCPU(char* rutaDelArchivoDeConfigura
 	config_destroy(archivoCfg);
 
 	return cfg;
+}
+
+void ejecutarInstruccion(char instruccion,int nroPag,char* testo){
+
+	tipoInstruccion* instruccionNueva = crearTipoInstruccion(pid,instruccion,nroPag,testo);
+
+	enviarInstruccion(socketCpu,instruccionNueva);
+
+	tipoRespuesta* respuestaEscribir = recibirRespuesta(socketCpu);
+
+	printf("el estado de respuesta es %c\n",respuestaEscribir->respuesta);
+
+	printf("La info de respuesta es: %s\n",respuestaEscribir->informacion);
+
 }

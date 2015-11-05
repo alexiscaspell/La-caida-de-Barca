@@ -46,6 +46,23 @@ void destruirConfigSWAP (tipoConfigSWAP* estructuraDeConfiguracion);
 
 tipoConfigSWAP* cargarArchivoDeConfiguracionDeSWAP(char* rutaDelArchivoDeConfiguracion);
 
+typedef struct{
+
+	int pid;
+
+	int nroPagina;
+
+	char* contenido;
+}paginaNegra;
+
+bool dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas,char* pagina);
+
+tipoRespuesta* responderLeer(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
+
+tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida);
+
+tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
+
 
 int main(void) {
 
@@ -53,35 +70,22 @@ int main(void) {
 
 	int socketSwap = crearSocket();
 
+	t_list* listaPaginas = list_create();
+
 	asociarAPuerto(socketSwap,configuracion->puertoDeEscucha);
 
 	escucharConexiones(socketSwap,1);
 
 	int socketMemoria = crearSocketParaAceptarSolicitudes(socketSwap);
 
-	printf("pase :'(\n");
-
-	char* negro = "negro";
-
-	tipoRespuesta respuesta;
-
-	respuesta.respuesta = PERFECTO;
-
-	respuesta.informacion = negro;
-
-	printf("pase :'(\n");
-
-
 	while(true){
 
 	tipoInstruccion* instruccionRecibida = recibirInstruccion(socketMemoria);
 
-	if(instruccionRecibida->instruccion==INICIAR){
+	tipoRespuesta* respuestaAMemoria = atenderInstruccion(instruccionRecibida,listaPaginas);
 
-		printf("Recibi una instruccion del proceso %d de reserva de %d pagina/s\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
+	enviarRespuesta(socketMemoria,respuestaAMemoria);
 
-		enviarRespuesta(socketMemoria,&respuesta);
-		}
 	}
 
 	liberarSocket(socketMemoria);
@@ -131,4 +135,92 @@ tipoConfigSWAP* cargarArchivoDeConfiguracionDeSWAP(char* rutaDelArchivoDeConfigu
 
 	return cfg;
 }
+
+tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* listaPaginas){
+
+	tipoRespuesta* respuesta;
+
+	switch (instruccionRecibida->instruccion) {
+
+		case INICIAR:
+			printf("Inico de proceso %d de %d paginas..\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
+			respuesta = responderIniciar(instruccionRecibida);
+			if(respuesta->respuesta==PERFECTO)
+				printf("Inicio de proceso efectivo!!\n");
+			else printf("Inicio de proceso fallido :'(\n");
+		break;
+		case LEER:
+			printf("Lectura de proceso %d de pagina %d ..\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
+			respuesta = responderLeer(instruccionRecibida,listaPaginas);
+			if(respuesta->respuesta==PERFECTO)
+				printf("Lectura de proceso efectiva!!\n");
+			else printf("Lectura de proceso fallida :'(\n");
+		break;
+		case FINALIZAR:
+		printf("Finalizacion de proceso %d ..\n",instruccionRecibida->pid);
+			respuesta = responderIniciar(instruccionRecibida);
+			if(respuesta->respuesta==PERFECTO)
+				printf("Finalizacion de proceso efectiva!!\n");
+			else printf("Finalizacion de proceso fallida :'(\n");
+		break;
+	}
+	return respuesta;
+}
+
+tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida){
+
+
+	tipoRespuesta* respuesta = crearTipoRespuesta(PERFECTO,"");
+
+	return respuesta;
+
+}
+
+tipoRespuesta* responderLeer(tipoInstruccion* instruccionRecibida,t_list* listaPaginas){
+
+	tipoRespuesta* respuesta;
+
+	char* pagina;
+
+	bool estaPagina = dondeEstaPagina(instruccionRecibida->nroPagina,instruccionRecibida->pid,listaPaginas,pagina);
+
+	if(estaPagina) respuesta = crearTipoRespuesta(PERFECTO,pagina);
+
+	else respuesta = crearTipoRespuesta(MANQUEADO,"pagina no esta en SWAP");
+
+	return respuesta;
+
+	}
+
+bool dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas,char* pagina){
+
+	bool estaPagina = false;
+
+	paginaNegra* paginaActual;
+
+	int var;
+	for (var = 0; var < list_size(listaPaginas); ++var) {
+
+		paginaActual = list_get(listaPaginas,var);
+
+		if(paginaActual->nroPagina==nroPagina&&paginaActual->pid==pid){
+
+			estaPagina = true;
+
+			pagina = paginaActual->contenido;
+
+			break;
+		}
+	}
+
+	return estaPagina;
+	}
+
+
+
+
+
+
+
+
 
