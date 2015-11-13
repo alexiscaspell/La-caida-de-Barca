@@ -21,6 +21,7 @@ void correrTests();
 
 //funciones
 void reservarEspacioParaUnProceso(t_list* listaDeHuecos,tipoConfigSWAP* cfg);
+void reservarEspacioParaDosProcesos(t_list* listaDeHuecos,tipoConfigSWAP* cfg);
 void liberarEspacioDeProceso(t_list* listaDeHuecos, int pid);
 
 
