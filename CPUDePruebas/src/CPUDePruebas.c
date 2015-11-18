@@ -111,8 +111,8 @@ void FinalizarInstruccion(int socketCPU) {
 
 	tipoInstruccion* aux = malloc(sizeof(tipoInstruccion));
 		aux->instruccion = FINALIZAR;
-		aux->nroPagina = nroPagina;
-		aux->pid = 0; //no importa
+		aux->nroPagina = 0;//nroPagina;//Esto es lo que no importa!!
+		aux->pid = pid; //no importa//Si importa pelotudo!!
 		aux->texto = ""; //no importa
 	enviarInstruccion(socketCPU, aux);
 
