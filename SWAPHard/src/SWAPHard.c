@@ -55,13 +55,15 @@ typedef struct{
 	char* contenido;
 }paginaNegra;
 
-bool dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas,char* pagina);
+int dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas);
 
 tipoRespuesta* responderLeer(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
 
 tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida);
 
 tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
+
+tipoRespuesta* responderEscribir(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
 
 
 int main(void) {
@@ -156,6 +158,13 @@ tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* l
 				printf("Lectura de proceso efectiva!!\n");
 			else printf("Lectura de proceso fallida :'(\n");
 		break;
+		case ESCRIBIR:
+			printf("Escritura de proceso %d de pagina %d ..\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
+			respuesta = responderEscribir(instruccionRecibida,listaPaginas);
+			if(respuesta->respuesta==PERFECTO)
+				printf("Escritura de proceso efectiva!!\n");
+			else printf("Escritura de proceso fallida :'(\n");
+		break;
 		case FINALIZAR:
 		printf("Finalizacion de proceso %d ..\n",instruccionRecibida->pid);
 			respuesta = responderIniciar(instruccionRecibida);
@@ -165,6 +174,27 @@ tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* l
 		break;
 	}
 	return respuesta;
+}
+
+tipoRespuesta* responderEscribir(tipoInstruccion* instruccionRecibida,t_list* listaPaginas){
+
+	paginaNegra* nuevaPag = malloc(sizeof(paginaNegra));
+
+	nuevaPag->nroPagina = instruccionRecibida->nroPagina;
+
+	nuevaPag->pid = instruccionRecibida->pid;
+
+	nuevaPag->contenido = string_duplicate(instruccionRecibida->texto);
+
+	list_add(listaPaginas,nuevaPag);
+
+	printf("La pagina guardad contiene: %s\n",nuevaPag->contenido);
+
+	paginaNegra* pagTestear = list_get(listaPaginas,0);
+
+	printf("Pagina %d de proceso %d con contenido: %s\n",pagTestear->nroPagina,pagTestear->pid,pagTestear->contenido);
+
+	return crearTipoRespuesta(PERFECTO,"Pagina guardada en swap");
 }
 
 tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida){
@@ -178,23 +208,28 @@ tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida){
 
 tipoRespuesta* responderLeer(tipoInstruccion* instruccionRecibida,t_list* listaPaginas){
 
-	tipoRespuesta* respuesta;
+	int posDePag = dondeEstaPagina(instruccionRecibida->nroPagina,instruccionRecibida->pid,listaPaginas);
 
-	char* pagina;
+	printf("Pase lo mas jodido!\n");
 
-	bool estaPagina = dondeEstaPagina(instruccionRecibida->nroPagina,instruccionRecibida->pid,listaPaginas,pagina);
+	printf("La posicion del dato es %d\n",posDePag);
 
-	if(estaPagina) respuesta = crearTipoRespuesta(PERFECTO,pagina);
+	printf("El contenido de la pag es: %s\n",(char*)list_get(listaPaginas,posDePag));
 
-	else respuesta = crearTipoRespuesta(MANQUEADO,"pagina no esta en SWAP");
+	if(posDePag>=0){
 
-	return respuesta;
+		char* pagina = list_get(listaPaginas,posDePag);
+
+		printf("El contenido posta de la pag es: %s\n",pagina);
+
+		return crearTipoRespuesta(PERFECTO,pagina);
+	}
+
+	else return crearTipoRespuesta(MANQUEADO,"pagina no esta en SWAP");
 
 	}
 
-bool dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas,char* pagina){
-
-	bool estaPagina = false;
+int dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas){
 
 	paginaNegra* paginaActual;
 
@@ -205,15 +240,11 @@ bool dondeEstaPagina(int nroPagina,int pid,t_list* listaPaginas,char* pagina){
 
 		if(paginaActual->nroPagina==nroPagina&&paginaActual->pid==pid){
 
-			estaPagina = true;
-
-			pagina = paginaActual->contenido;
-
-			break;
+			return var;
 		}
 	}
 
-	return estaPagina;
+		return -1;
 	}
 
 
