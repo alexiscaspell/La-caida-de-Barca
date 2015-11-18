@@ -15,17 +15,21 @@
 #include "funciones.h"
 
 
-tipoInstruccion* generarInstruccion();
+
 void imprimirRespuesta(tipoRespuesta* respuesta);
-tipoInstruccion* generarInstruccionHard();
+void imprimirInstruccion(tipoInstruccion* instruccion);
+tipoInstruccion* iniciarHard();
+tipoInstruccion* leerHard();
+tipoInstruccion* escribirHard();
+tipoInstruccion* finalizarHard();
 
 int pidHard;
 int paginasHard;
+int paginaEscrituraLectura;
 
 
 int main(void) {
-	pidHard = 0;
-	paginasHard = 0;
+
 
 	tipoConfigMemoria* cfg = cargarArchivoDeConfiguracionDeMemoria("cfgMemoria");
 	tipoRespuesta* respuesta;
@@ -34,17 +38,44 @@ int main(void) {
 	int socketSWAP = crearSocket();
 	conectarAServidor(socketSWAP,cfg->ipSWAP,cfg->puertoSWAP);
 
-	int i = 1;
-	while(i<10){
+//	pidHard = 5;
+//	paginasHard = 3;
+//	instruccion = iniciarHard();
+//
+//	paginaEscrituraLectura = 1;
+//	escribirHard();
+//
+//
+
+	pidHard = 5;
+	paginasHard = 10;
+	paginaEscrituraLectura = 2;
+
+	int i = 0;
+	while(i<4){
 
 		//instruccion = generarInstruccion();
-		instruccion = generarInstruccionHard();
+		if (i==0) {
+			instruccion = iniciarHard();
+		}
+		if(i==1){
+			instruccion = escribirHard();
+		}
+		if(i==2){
+
+			instruccion = leerHard();
+		}
+		if(i==3) {
+			instruccion = finalizarHard();
+		}
+
+		imprimirInstruccion(instruccion);
 
 		enviarInstruccion(socketSWAP,instruccion);
 
 		printf("Instruccion enviada numero: %d\n",i);
 		i++;
-		//sleep(5);
+		sleep(2);
 
 		respuesta = recibirRespuesta(socketSWAP);
 
@@ -55,27 +86,37 @@ int main(void) {
 	return EXIT_SUCCESS;
 }
 
-
-tipoInstruccion* generarInstruccion(){
-
-	char ins;
-	int pid, nroPag;
-	char* texto = string_new();
-
-	printf("Ingrese instruccion, pid, nroPag:\n");
-	scanf("%c %d %d",&ins,&pid,&nroPag);
-	fflush(stdin);
-
-	return crearTipoInstruccion(pid,ins,nroPag,"asd");
+void imprimirInstruccion(tipoInstruccion* instruccion){
+	printf("PID: %d  Instruccion: %c  Paginas: %d  Texto:  %s",instruccion->pid,instruccion->instruccion,instruccion->nroPagina,instruccion->texto);
 }
+
 
 void imprimirRespuesta(tipoRespuesta* respuesta){
-	printf("\nResultado: %c \nTexto: %s\n\n",respuesta->respuesta,respuesta->informacion);
+	printf("Resultado: %c \nTexto: %s\n\n\n",respuesta->respuesta,respuesta->informacion);
 }
 
 
-tipoInstruccion* generarInstruccionHard(){
-	pidHard++;
-	paginasHard++;
-	return crearTipoInstruccion(pidHard,INICIAR,paginasHard,"asd");
+tipoInstruccion* iniciarHard(){
+	//pidHard++;
+	//paginasHard++;
+	return crearTipoInstruccion(pidHard,INICIAR,paginasHard,"");
+}
+
+tipoInstruccion* leerHard(){
+	tipoInstruccion* instruccion = crearTipoInstruccion(pidHard,LEER,paginaEscrituraLectura,"");
+
+	//pidHard++;
+	return instruccion;
+}
+
+tipoInstruccion* escribirHard(){
+	tipoInstruccion* instruccion = crearTipoInstruccion(pidHard,ESCRIBIR,paginaEscrituraLectura,"tuvieja");
+	//pidHard++;
+
+	return instruccion;
+}
+
+
+tipoInstruccion* finalizarHard(){
+	return crearTipoInstruccion(pidHard,FINALIZAR,0,"");
 }
