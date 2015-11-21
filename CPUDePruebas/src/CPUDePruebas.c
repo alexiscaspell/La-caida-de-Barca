@@ -119,6 +119,23 @@ void FinalizarInstruccion(int socketCPU) {
 	tipoRespuesta* respuesta = recibirRespuesta(socketCPU);
 	imprimirRespuesta(respuesta);
 	free(respuesta);
+}
+
+void FinalizarMemoria(int socketCPU){
+
+	fflush(0);
+	printf("pid: "); scanf("%d", &pid);
+
+	tipoInstruccion* aux = malloc(sizeof(tipoInstruccion));
+		aux->instruccion = FINALIZAR_PROCESO;
+		aux->nroPagina = 0;
+		aux->pid = 0;
+		aux->texto = "";
+	enviarInstruccion(socketCPU, aux);
+
+	tipoRespuesta* respuesta = recibirRespuesta(socketCPU);
+	imprimirRespuesta(respuesta);
+	free(respuesta);
 
 }
 
@@ -135,6 +152,9 @@ void ejecutarAccionMenu(int opcion, int socketCPU) {
 		break;
 	case 4:
 		FinalizarInstruccion(socketCPU);
+		break;
+	case 5:
+		FinalizarMemoria(socketCPU);
 		break;
 	}
 }
@@ -200,6 +220,7 @@ int main(void) {
 		printf("2) Escribir Instruccion\n");
 		printf("3) Leer Instruccion\n");
 		printf("4) Finalizar Instruccion\n");
+		printf("5) Finalizar Memoria\n");
 		printf("\n");
 		scanf("%d", &opcion);
 

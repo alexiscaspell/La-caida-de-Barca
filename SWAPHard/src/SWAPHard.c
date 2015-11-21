@@ -65,6 +65,10 @@ tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* l
 
 tipoRespuesta* responderEscribir(tipoInstruccion* instruccionRecibida,t_list* listaPaginas);
 
+tipoRespuesta* responderFinalizarProceso();
+
+bool ejecutando = true;
+
 
 int main(void) {
 
@@ -80,7 +84,7 @@ int main(void) {
 
 	int socketMemoria = crearSocketParaAceptarSolicitudes(socketSwap);
 
-	while(true){
+	while(ejecutando){
 
 	tipoInstruccion* instruccionRecibida = recibirInstruccion(socketMemoria);
 
@@ -153,14 +157,14 @@ tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* l
 		break;
 		case LEER:
 			printf("Lectura de proceso %d de pagina %d ..\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
-			respuesta = responderLeer(instruccionRecibida,listaPaginas);
+			respuesta = crearTipoRespuesta(PERFECTO,"hola");//responderLeer(instruccionRecibida,listaPaginas);
 			if(respuesta->respuesta==PERFECTO)
 				printf("Lectura de proceso efectiva!!\n");
 			else printf("Lectura de proceso fallida :'(\n");
 		break;
 		case ESCRIBIR:
 			printf("Escritura de proceso %d de pagina %d ..\n",instruccionRecibida->pid,instruccionRecibida->nroPagina);
-			respuesta = responderEscribir(instruccionRecibida,listaPaginas);
+			respuesta = crearTipoRespuesta(PERFECTO,"Pagina guardada en SWAP");//responderEscribir(instruccionRecibida,listaPaginas);
 			if(respuesta->respuesta==PERFECTO)
 				printf("Escritura de proceso efectiva!!\n");
 			else printf("Escritura de proceso fallida :'(\n");
@@ -171,6 +175,10 @@ tipoRespuesta* atenderInstruccion(tipoInstruccion* instruccionRecibida,t_list* l
 			if(respuesta->respuesta==PERFECTO)
 				printf("Finalizacion de proceso efectiva!!\n");
 			else printf("Finalizacion de proceso fallida :'(\n");
+		break;
+		case FINALIZAR_PROCESO:
+		printf("Finalizacion de swap ..\n");
+			respuesta = responderFinalizarProceso();
 		break;
 	}
 	return respuesta;
@@ -195,6 +203,11 @@ tipoRespuesta* responderEscribir(tipoInstruccion* instruccionRecibida,t_list* li
 	printf("Pagina %d de proceso %d con contenido: %s\n",pagTestear->nroPagina,pagTestear->pid,pagTestear->contenido);
 
 	return crearTipoRespuesta(PERFECTO,"Pagina guardada en swap");
+}
+
+tipoRespuesta* responderFinalizarProceso(){
+	ejecutando = false;
+	return crearTipoRespuesta(PERFECTO,"Swap finalizada con exito");
 }
 
 tipoRespuesta* responderIniciar(tipoInstruccion* instruccionRecibida){
