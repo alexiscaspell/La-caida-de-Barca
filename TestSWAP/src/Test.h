@@ -19,8 +19,12 @@
 
 void correrTests();
 
+tipoRespuesta* ejecutar(tipoInstruccion* instruccion);
+
 //funciones
-void reservarEspacioParaUnProceso(t_list* listaDeHuecos,tipoConfigSWAP* cfg);
+void listasInicializadas();
+void reservarEspacioParaUnProceso();
+
 void reservarEspacioParaDosProcesos(t_list* listaDeHuecos,tipoConfigSWAP* cfg);
 void liberarEspacioDeProceso(t_list* listaDeHuecos, int pid);
 

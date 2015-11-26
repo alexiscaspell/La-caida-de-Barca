@@ -9,45 +9,56 @@
 #include "Test.h"
 
 
+
+
+
+
+			tipoConfigSWAP* cfg;
+			t_list* listaDeHuecosUtilizados;
+			t_list* listaDeHuecosLibres;
+			tipoHuecoUtilizado* hueco;
+			t_log* logger;
+			bool finalizarProceso;
+
+
 void correrTests(){
 
 	context(asd){
 
 		describe("Tests de SWAP"){
-			tipoConfigSWAP* cfg;
-			t_list* listaDeHuecos;
-			tipoHuecoUtilizado* hueco;
+
 
 			before{
-				cfg = cargarArchivoDeConfiguracionDeSWAP("cfgSWAP");
-				listaDeHuecos = inicializarListaDeHuecosUtilizados();
-				hueco = crearHuecoUtilizado(1,4,2);
 
-				list_add(listaDeHuecos,hueco);
+				logger = crearLoggerParaSeguimiento("logSWAP","Administrador de SWAP");
+				logearSeguimiento("Inicio de ejecucion de proceso SWAP",logger);
+
+				cfg = cargarArchivoDeConfiguracionDeSWAP("cfgSWAP");
+				listaDeHuecosUtilizados = inicializarListaDeHuecosUtilizados();
+				listaDeHuecosLibres = inicializarListaDeHuecosLibres(cfg->cantidadDePaginas);
+				inicializarParticion(cfg->nombreDeSWAP,cfg->tamanioDePagina,cfg->cantidadDePaginas);
+				hueco = crearHuecoUtilizado(1,4,2);
+				finalizarProceso = false;
+
+				//list_add(listaDeHuecosUtilizados,hueco);
 			}end
 
 			after{
-				list_destroy_and_destroy_elements(listaDeHuecos,(void*)destruirHuecoUtilizado);
+
+				list_destroy_and_destroy_elements(listaDeHuecosUtilizados,(void*)destruirHuecoUtilizado);
+				list_destroy_and_destroy_elements(listaDeHuecosLibres,(void*)destruirHuecoLibre);
 				destruirConfigSWAP(cfg);
+				destruirLogger(logger);
+
 			}end
 
+			it("Listas inicializadas correctamente"){
+				listasInicializadas();
+			}end
 
 			it("Reservar espacio para un proceso"){
-
-				reservarEspacioParaUnProceso(listaDeHuecos,cfg);
-
+				reservarEspacioParaUnProceso();
 			}end
-
-			it("Reservar espacio para dos procesos"){
-				reservarEspacioParaDosProcesos(listaDeHuecos,cfg);
-			}end
-
-			it("Liberar espacio de un proceso"){
-
-				liberarEspacioDeProceso(listaDeHuecos,1);
-
-			}end
-
 
 		}end
 
@@ -55,41 +66,34 @@ void correrTests(){
 
 }
 
-void reservarEspacioParaUnProceso(t_list* listaDeHuecos,tipoConfigSWAP* cfg){
 
-	tipoInstruccion* instruccion = crearTipoInstruccion(1,INICIAR,5,"");
-	tipoRespuesta* respuesta = ejecutarInstruccion(instruccion,listaDeHuecos,cfg);
-
-	should_bool(respuesta->respuesta==PERFECTO) be truthy;
-	should_bool(list_size(listaDeHuecos)==2) be truthy;
-
-	destruirTipoInstruccion(instruccion);
-	destruirTipoRespuesta(respuesta);
+tipoRespuesta* ejecutar(tipoInstruccion* instruccion){
+	return ejecutarInstruccion(instruccion,listaDeHuecosUtilizados,listaDeHuecosLibres,cfg,logger,&finalizarProceso);
 }
 
-void liberarEspacioDeProceso(t_list* listaDeHuecos, int pid){
-	liberarEspacio(listaDeHuecos,pid);
 
-	should_bool(list_size(listaDeHuecos)==0) be truthy;
-}
+void listasInicializadas(){
+	tipoHuecoLibre* hueco = list_get(listaDeHuecosLibres,0);
 
-void reservarEspacioParaDosProcesos(t_list* listaDeHuecos,tipoConfigSWAP* cfg){
+	should_int(list_size(listaDeHuecosUtilizados)) be equal to(0);
+	should_int(list_size(listaDeHuecosLibres)) be equal to(1);
 
-	tipoInstruccion* instruccion = crearTipoInstruccion(1,INICIAR,5,"");
-	tipoRespuesta* respuesta = ejecutarInstruccion(instruccion,listaDeHuecos,cfg);
-
-	tipoInstruccion* instruccion2 = crearTipoInstruccion(5,INICIAR,10,"");
-	tipoRespuesta* respuesta2 = ejecutarInstruccion(instruccion2,listaDeHuecos,cfg);
-
-	should_bool(respuesta->respuesta==PERFECTO) be truthy;
-	should_bool(respuesta2->respuesta==PERFECTO) be truthy;
-	should_bool(list_size(listaDeHuecos)==3) be truthy;
-
-	destruirTipoInstruccion(instruccion);
-	destruirTipoRespuesta(respuesta);
-
-	destruirTipoInstruccion(instruccion2);
-	destruirTipoRespuesta(respuesta2);
-
+	should_int(hueco->base) be equal to(0);
+	should_int(hueco->cantidadDePaginasQueOcupa) be equal to(cfg->cantidadDePaginas);
 
 }
+
+void reservarEspacioParaUnProceso(){
+	tipoInstruccion* reservar = crearTipoInstruccion(1,INICIAR,4,"");
+
+	tipoRespuesta* resultadoDeReserva = ejecutar(reservar);
+
+	should_bool(resultadoDeReserva->respuesta == PERFECTO) be truthy;
+
+}
+//
+//void liberarEspacioDeProceso(t_list* listaDeHuecos, int pid){
+//
+//	should_bool(1==0) be truthy;
+//}
+

@@ -11,6 +11,8 @@
 
 char* recuperarBloque(char* bloqueAVaciar);
 char* completarBloque(char* bloqueACompletar, int tamanioDeBloque);
+void borrarBloque(char* rutaDeParticion, int numeroDeBloque, int tamanioDeBloque);
+
 
 
 //////////////FUNCIONES PARA EL ARCHIVO DE PARTICION///////////////////////
@@ -21,15 +23,13 @@ void inicializarParticion(char* nombreDeParticion,int tamanioDePagina,int cantid
 	//FILE* particion;
 
 	char* instruccion = string_new();
-	string_append_with_format(&instruccion,"dd if=/dev/zero of=%s bs=%d count=%d",nombreDeParticion,tamanioDePagina,cantidadDePaginas);
+	string_append_with_format(&instruccion,"dd if=/dev/zero of=%s bs=%d count=%d > asd",nombreDeParticion,tamanioDePagina,cantidadDePaginas);
 
 	printf("Inicializando particion...\n\n");
-
-	//system("dd if=/dev/zero of=%s bs=%d count=%d",nombreDeParticion,tamanioDePagina,cantidadDePaginas);
 	system(instruccion);
-	//sprintf(instruccion,"truncate -s %d %s",tamanioDeParticion,nombreDeParticion);
-
 	printf("Particion inicializada. \n");
+
+	free(instruccion);
 
 	//particion = fopen(nombreDeParticion,"r+");//modo actualizacion, el archivo debe existir
 	//return particion;
@@ -48,6 +48,8 @@ void escribirBloqueMapeado(char* rutaDeParticion,char* contenidoAEscribir,int nu
 
 	fwrite(aux,tamanioDeBloque,1,archivo);
 
+	//free(aux);
+
 	fclose(archivo);
 }
 
@@ -63,8 +65,21 @@ char* leerBloqueMapeado(char* rutaDeParticion,int numDeBloque, int tamanioDeBloq
 	char* aux = recuperarBloque(leido);
 
 	fclose(archivo);
+	free(leido);
+	//free(aux);
 
 	return aux;
+}
+
+
+void borrarMProcDeParticion(char* rutaDeParticion,int baseDeMProc,int cantidadDePaginasDeMProc,int tamanioDeBloque){
+
+	int i;
+	for (i = 0; i < cantidadDePaginasDeMProc; ++i) {
+
+		borrarBloque(rutaDeParticion,baseDeMProc,tamanioDeBloque);
+		baseDeMProc++;
+	}
 }
 
 
@@ -94,3 +109,8 @@ char* recuperarBloque(char* bloqueAVaciar){
 
 	return bloque;
 }
+
+void borrarBloque(char* rutaDeParticion, int numeroDeBloque, int tamanioDeBloque){
+	escribirBloqueMapeado(rutaDeParticion,"",numeroDeBloque,tamanioDeBloque);
+}
+
